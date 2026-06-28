@@ -88,6 +88,52 @@ public class RestaurantDAOImpl implements RestaurantDAO {
     }
 
     @Override
+    public List<Restaurant> getRestaurantsPaged(int offset, int limit) {
+        List<Restaurant> restaurants = new ArrayList<>();
+        String sql = "SELECT * FROM restaurants WHERE is_active = TRUE ORDER BY rating DESC LIMIT ? OFFSET ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                restaurants.add(mapResultSetToRestaurant(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return restaurants;
+    }
+
+    @Override
+    public int countAllRestaurants() {
+        String sql = "SELECT COUNT(*) FROM restaurants WHERE is_active = TRUE";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return 0;
+    }
+
+    @Override
     public List<Restaurant> searchRestaurants(String keyword) {
         List<Restaurant> restaurants = new ArrayList<>();
         String sql = "SELECT * FROM restaurants WHERE is_active = TRUE AND (name LIKE ? OR cuisine LIKE ?) ORDER BY rating DESC";
@@ -112,6 +158,29 @@ public class RestaurantDAOImpl implements RestaurantDAO {
             closeResources(conn, ps, rs);
         }
         return restaurants;
+    }
+
+    @Override
+    public int countSearchResults(String keyword) {
+        String sql = "SELECT COUNT(*) FROM restaurants WHERE is_active = TRUE AND (name LIKE ? OR cuisine LIKE ?)";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            String searchTerm = "%" + keyword + "%";
+            ps.setString(1, searchTerm);
+            ps.setString(2, searchTerm);
+            rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return 0;
     }
 
     @Override

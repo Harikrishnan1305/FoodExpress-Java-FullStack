@@ -7,7 +7,7 @@
 **Version:** 1.0-SNAPSHOT  
 **Author:** Krishnan  
 **Repository:** [GitHub — Online Food Ordering System](https://github.com/Harikrishnan1305/Online-Food-Ordering-System)  
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 ---
 
@@ -194,6 +194,14 @@ The application follows the **Model-View-Controller (MVC)** architectural patter
     </dependency>
 </dependencies>
 ```
+
+### 3.4 Maven Build Plugins
+
+| Plugin | Version | Purpose |
+|--------|---------|--------|
+| `maven-war-plugin` | 3.3.2 | Packages the application as a WAR archive |
+| `maven-compiler-plugin` | 3.11.0 | Compiles Java source at Java 11 source/target level |
+| `cargo-maven3-plugin` | 1.10.10 | Downloads and runs Apache Tomcat 9.0.83 directly via Maven (`mvn cargo:run`) without a manual Tomcat installation |
 
 ---
 
@@ -537,20 +545,63 @@ The stylesheet (1,335 lines) implements a comprehensive design system:
 ```css
 :root {
     /* Primary Colors */
-    --primary: #FF6B35;           /* Orange accent */
+    --primary: #FF6B35;                     /* Orange accent */
     --primary-light: #FF8C5A;
     --primary-dark: #E55A2B;
+    --primary-glow: rgba(255, 107, 53, 0.3);
+
+    /* Accent */
+    --accent: #FFB347;
+    --accent-light: #FFCC80;
 
     /* Backgrounds */
-    --bg-primary: #0D0D0D;        /* Deep black */
-    --bg-secondary: #1A1A2E;      /* Dark navy */
-    --bg-card: rgba(26, 26, 46, 0.8);  /* Glassmorphism card */
+    --bg-primary: #0D0D0D;                  /* Deep black */
+    --bg-secondary: #1A1A2E;                /* Dark navy */
+    --bg-tertiary: #16213E;
+    --bg-card: rgba(26, 26, 46, 0.8);       /* Glassmorphism card */
+    --bg-card-hover: rgba(22, 33, 62, 0.9);
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    --bg-input: rgba(255, 255, 255, 0.08);
+
+    /* Text */
+    --text-primary: #FFFFFF;
+    --text-secondary: #B0B0C3;
+    --text-muted: #6B6B80;
+    --text-accent: #FF6B35;
+
+    /* Borders */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(255, 107, 53, 0.5);
+
+    /* Status */
+    --success: #00C853;
+    --success-bg: rgba(0, 200, 83, 0.1);
+    --warning: #FFB347;
+    --danger: #FF5252;
+    --danger-bg: rgba(255, 82, 82, 0.1);
+    --info: #448AFF;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 30px rgba(255, 107, 53, 0.15);
+
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 50px;
 
     /* Typography */
     --font-display: 'Outfit', sans-serif;   /* Headings */
     --font-body: 'Inter', sans-serif;       /* Body text */
 
-    /* Spacing, Shadows, Transitions... */
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
 }
 ```
 
@@ -567,14 +618,23 @@ The stylesheet (1,335 lines) implements a comprehensive design system:
 | **Mobile Responsive** | Media queries for tablets and mobile breakpoints |
 | **Custom Scrollbar** | Themed `::-webkit-scrollbar` styles |
 
-### 7.4 JavaScript (`app.js`)
+### 7.4 JavaScript (`app.js`) — 212 lines
 
-Client-side JavaScript handles:
-- Restaurant card click navigation (`data-href` attribute)
-- Cart quantity increment/decrement interactions
-- Form validation (client-side)
-- Animation triggers and micro-interactions
-- Dynamic UI updates
+All logic is initialised inside a single `DOMContentLoaded` listener and split into focused, named functions:
+
+| Function | Description |
+|----------|-------------|
+| `initToastSystem()` | Creates a `.toast-container` div appended to `<body>` for global toast messages |
+| `showToast(message, type)` | Dynamically creates and auto-removes toast notifications (success/error/info) after 3 seconds |
+| `initQuantityControls()` | Attaches click listeners to `.qty-decrease` / `.qty-increase` buttons on the cart page |
+| `updateCartQuantity(menuId, quantity)` | Submits a hidden form with `action=update` to `POST /cart` to update item quantity |
+| `removeCartItem(menuId)` | Submits a hidden form with `action=remove` to `POST /cart` to delete an item |
+| `initSearchEnhancements()` | Toggles visibility of the search clear button (`#searchClear`) on input |
+| `clearSearch()` | Resets the search field and re-submits the form |
+| `initCardInteractions()` | Attaches click listeners to `.restaurant-card[data-href]` elements for navigation |
+| `addToCart(menuId, restaurantId)` | Submits a hidden form with `action=add` to `POST /cart`, including a `redirectTo` parameter pointing back to the menu page |
+| `confirmRestaurantChange(menuId, restaurantId)` | Shows a browser `confirm()` dialog warning the user that switching restaurants clears the cart, then calls `addToCart()` |
+| `getContextPath()` | Derives the servlet context path from `window.location.pathname` for correct form action URLs |
 
 ---
 
@@ -843,6 +903,23 @@ http://localhost:8080/FoodOrderingSystem/
 | Encoding | UTF-8 |
 | WAR Plugin Version | 3.3.2 |
 | Compiler Plugin Version | 3.11.0 |
+| Cargo Plugin Version | 1.10.10 |
+| Cargo Container | `tomcat9x` (auto-downloaded Tomcat 9.0.83) |
+| Cargo Port | 8080 |
+
+#### Running with the Cargo Plugin (No Manual Tomcat Required)
+
+The Cargo plugin automatically downloads and starts Tomcat 9, so you can run the application without installing Tomcat manually:
+
+```bash
+mvn clean package cargo:run
+```
+
+This will:
+1. Build the WAR file
+2. Download Apache Tomcat 9.0.83 (first run only)
+3. Deploy and start the application
+4. Application is accessible at `http://localhost:8080/FoodOrderingSystem/`
 
 ### 11.4 Deployment Descriptor (`web.xml`)
 
@@ -972,4 +1049,7 @@ http://localhost:8080/FoodOrderingSystem/
 ---
 
 > 📝 **Document generated for the Online Food Ordering System project**  
-> **Author:** Krishnan | **Date:** April 2026
+> **Author:** Krishnan | **Date:** May 2026
+
+powershell -ExecutionPolicy Bypass -File "C:\Users\krish\projects\Online Food Order Processing System\food-order-system\start-all.ps1"
+

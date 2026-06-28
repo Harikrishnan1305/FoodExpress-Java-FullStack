@@ -5,6 +5,8 @@ import com.foodapp.dao.impl.MenuDAOImpl;
 import com.foodapp.model.Cart;
 import com.foodapp.model.CartItem;
 import com.foodapp.model.Menu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -23,6 +25,7 @@ import java.io.IOException;
 @WebServlet("/cart")
 public class CartServlet extends HttpServlet {
 
+    private static final Logger log = LoggerFactory.getLogger(CartServlet.class);
     private MenuDAO menuDAO;
 
     @Override
@@ -137,7 +140,7 @@ public class CartServlet extends HttpServlet {
                 }
             }
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            log.warn("Invalid menuId in add-to-cart request: '{}'", menuIdParam);
         }
     }
 
@@ -152,7 +155,7 @@ public class CartServlet extends HttpServlet {
             int menuId = Integer.parseInt(menuIdParam);
             cart.removeItem(menuId);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            log.warn("Invalid menuId in remove-from-cart request: '{}'", menuIdParam);
         }
     }
 
@@ -169,7 +172,8 @@ public class CartServlet extends HttpServlet {
             int quantity = Integer.parseInt(quantityParam);
             cart.updateQuantity(menuId, quantity);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            log.warn("Invalid menuId or quantity in update-cart request: menuId='{}', qty='{}'",
+                    menuIdParam, quantityParam);
         }
     }
 }
