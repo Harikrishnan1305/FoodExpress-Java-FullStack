@@ -1,1 +1,5 @@
-db.password=YOUR_MYSQL_PASSWORD
+# Database Configuration — LOCAL SETUP
+# ⚠️  This file contains sensitive credentials. DO NOT commit to version control.
+# Copy this file as db.properties and fill in your actual values.
+
+db.password=YOUR_MYSQL_PASSWORD_HERE

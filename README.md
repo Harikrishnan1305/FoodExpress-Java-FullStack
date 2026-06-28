@@ -1,157 +1,230 @@
-# 🍔 Online Food Ordering System
+<div align="center">
 
-A full-stack **Swiggy/Zomato clone** built with Java Servlets, JSP, JDBC, and MySQL. Features a premium dark-themed responsive UI with session-based cart management and secure user authentication.
+# 🍛 FoodExpress
+### Full-Stack Online Food Ordering System
 
-![Java](https://img.shields.io/badge/Java-11-orange?style=for-the-badge&logo=java)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?style=for-the-badge&logo=mysql)
-![Maven](https://img.shields.io/badge/Maven-3.x-red?style=for-the-badge&logo=apache-maven)
-![Servlet](https://img.shields.io/badge/Servlet-4.0-green?style=for-the-badge)
+*A production-grade Zomato/Swiggy clone — built from scratch with core Java EE.*
+
+[![Java](https://img.shields.io/badge/Java-11+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.java.com)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
+[![Maven](https://img.shields.io/badge/Apache_Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)](https://maven.apache.org)
+[![Tomcat](https://img.shields.io/badge/Tomcat-9.0-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=black)](https://tomcat.apache.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+
+[🚀 Features](#-features) • [🏗️ Architecture](#%EF%B8%8F-architecture) • [🛠️ Tech Stack](#%EF%B8%8F-tech-stack) • [⚡ Quick Start](#-quick-start) • [📸 Screenshots](#-screenshots) • [🔒 Security](#-security)
+
+</div>
+
+---
+
+## 📌 Overview
+
+**FoodExpress** is a fully functional, end-to-end online food ordering web application inspired by industry leaders like **Zomato** and **Swiggy**. Built entirely using **core Java EE technologies** without any modern framework shortcuts — demonstrating deep understanding of the Java web ecosystem, MVC design patterns, database architecture, and security best practices.
+
+> **Why this project stands out:** Most Java web projects use Spring Boot which abstracts away the complexity. FoodExpress is built with **raw Servlets, JSP, and JDBC** — showing genuine mastery of the fundamentals that Spring Boot is built on top of.
 
 ---
 
 ## ✨ Features
 
-- 🔐 **User Authentication** — Register/Login with SHA-256 password hashing
-- 🏪 **Restaurant Browsing** — Browse restaurants with ratings and cuisine info
-- 📋 **Menu Management** — View categorized menus with item details and pricing
-- 🛒 **Smart Cart System** — Session-based cart with restaurant-switch logic
-- 📦 **Order Placement** — Checkout with order confirmation and database transaction management
-- 🎨 **Premium Dark UI** — Modern, responsive design with glassmorphism effects
+### 👤 User Side
+- **Zomato-style Landing Page** — Hero section, food categories, restaurant cards, collections, promotional banners, and full footer — all built with pure CSS
+- **Secure Authentication** — User registration & login with session-based state management
+- **Restaurant Catalog** — Browse 20+ authentic South Indian restaurants with images, ratings, cuisine tags, and delivery time
+- **Smart Search** — Filter restaurants by name or cuisine type with real-time results
+- **Pagination** — Server-side pagination (6 restaurants per page) for optimal performance
+- **Menu Browsing** — View full menu for each restaurant with dish images, descriptions, and prices
+- **Shopping Cart** — Session-based cart with add/remove items and live total calculation
+- **Order Checkout** — Complete order placement with address and payment method selection
+- **Order History** — Full order history with timestamps, items, and status tracking
+
+### 🔧 Technical Highlights
+- **HikariCP Connection Pool** — High-performance database connection pooling (industry standard)
+- **DAO Design Pattern** — Clean separation of data access logic with interface + implementation pattern
+- **MVC Architecture** — Strict Model-View-Controller separation
+- **SLF4J + Logback** — Professional structured logging
+- **XSS Prevention** — Output encoding on all user-generated content
+- **SQL Injection Prevention** — 100% PreparedStatement usage
 
 ---
 
-## 🏗️ Tech Stack
-
-| Layer       | Technology                        |
-|-------------|-----------------------------------|
-| **Frontend**  | JSP, JSTL, HTML5, CSS3, JavaScript |
-| **Backend**   | Java Servlets (Servlet 4.0)       |
-| **Database**  | MySQL 8.0 with JDBC               |
-| **Build Tool**| Apache Maven                      |
-| **Server**    | Apache Tomcat 9                   |
-| **Security**  | SHA-256 Password Hashing          |
-
----
-
-## 📁 Project Structure
+## 🏗️ Architecture
 
 ```
-Online Food Ordering System using Java/
-├── pom.xml
-├── sql/
-│   └── schema.sql                    # Database schema & seed data
-├── src/main/
-│   ├── java/com/foodapp/
-│   │   ├── dao/                      # Data Access Objects (interfaces)
-│   │   │   └── impl/                 # DAO implementations
-│   │   ├── model/                    # POJO models
-│   │   ├── servlet/                  # Servlet controllers
-│   │   └── util/                     # Utility classes (DB, Password)
-│   └── webapp/
-│       ├── WEB-INF/
-│       ├── css/                      # Stylesheets
-│       ├── js/                       # JavaScript files
-│       ├── index.jsp                 # Login page
-│       ├── register.jsp              # Registration page
-│       ├── home.jsp                  # Restaurant listing
-│       ├── menu.jsp                  # Restaurant menu
-│       ├── cart.jsp                  # Shopping cart
-│       ├── checkout.jsp              # Checkout page
-│       ├── order-confirmation.jsp    # Order confirmation
-│       └── error.jsp                 # Error page
+┌─────────────────────────────────────────────────────────┐
+│                    CLIENT (Browser)                      │
+└───────────────────────┬─────────────────────────────────┘
+                        │ HTTP Request
+┌───────────────────────▼─────────────────────────────────┐
+│              PRESENTATION LAYER (JSP/HTML/CSS/JS)        │
+│  landing.jsp │ index.jsp │ home.jsp │ menu.jsp │ cart.jsp│
+└───────────────────────┬─────────────────────────────────┘
+                        │ Servlet Forward / Redirect
+┌───────────────────────▼─────────────────────────────────┐
+│               CONTROLLER LAYER (Java Servlets)           │
+│  HomeServlet │ MenuServlet │ CartServlet │ LoginServlet  │
+│  RegisterServlet │ CheckoutServlet │ OrderHistoryServlet │
+└───────────────────────┬─────────────────────────────────┘
+                        │ Business Logic
+┌───────────────────────▼─────────────────────────────────┐
+│                  SERVICE / DAO LAYER                     │
+│  RestaurantDAO │ MenuDAO │ OrderDAO │ UserDAO            │
+│  (Interface + Impl pattern)                              │
+└───────────────────────┬─────────────────────────────────┘
+                        │ JDBC + HikariCP
+┌───────────────────────▼─────────────────────────────────┐
+│                  DATABASE (MySQL 8.0)                    │
+│  users │ restaurants │ menu_items │ orders │ order_items │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ⚙️ Prerequisites
+## 🛠️ Tech Stack
 
-- **Java JDK** 11 or higher
-- **Apache Maven** 3.x
-- **MySQL** 8.0
-- **Apache Tomcat** 9.x
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Language** | Java 11 | Core application logic |
+| **Web Framework** | Java Servlets 4.0 | HTTP request handling & routing |
+| **View Layer** | JSP + JSTL + EL | Dynamic HTML rendering |
+| **Database** | MySQL 8.0 | Relational data persistence |
+| **Connection Pool** | HikariCP 5.x | High-performance DB connections |
+| **Build Tool** | Apache Maven | Dependency management & packaging |
+| **Server** | Apache Tomcat 9.0 (via Cargo) | Servlet container |
+| **Logging** | SLF4J + Logback | Structured application logging |
+| **Frontend** | HTML5 + CSS3 + Vanilla JS | UI/UX with glassmorphism design |
 
 ---
 
-## 🚀 Setup & Installation
+## ⚡ Quick Start
 
-### 1. Clone the Repository
+### Prerequisites
+- JDK 11 or higher
+- Apache Maven 3.6+
+- MySQL Server 8.0+
 
+### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/Harikrishnan1305/Online-Food-Ordering-System.git
-cd Online-Food-Ordering-System
+git clone https://github.com/Harikrishnan1305/FoodExpress-Java-FullStack.git
+cd FoodExpress-Java-FullStack
 ```
 
-### 2. Set Up the Database
-
+### 2️⃣ Database Setup
 ```bash
 mysql -u root -p < sql/schema.sql
 ```
+*This creates the `food_ordering_db` database with all tables and seeds 20 restaurants + full menus.*
 
-### 3. Configure Database Credentials
-
-Edit `src/main/java/com/foodapp/util/DBConnection.java` and update:
-
-```java
-private static final String URL = "jdbc:mysql://localhost:3306/food_ordering_db";
-private static final String USERNAME = "root";
-private static final String PASSWORD = "YOUR_MYSQL_PASSWORD";  // ← Set your password
-```
-
-### 4. Build the Project
-
+### 3️⃣ Configure Database Password
 ```bash
-mvn clean package
+# Copy the template
+cp src/main/resources/db.properties.example src/main/resources/db.properties
+
+# Edit and add your MySQL password
+# db.password=YOUR_PASSWORD_HERE
 ```
 
-### 5. Deploy to Tomcat
+### 4️⃣ Build & Run
+```bash
+mvn clean package cargo:run
+```
 
-Copy the generated `target/FoodOrderingSystem.war` to your Tomcat `webapps/` directory, then start Tomcat.
-
-### 6. Access the Application
-
-Open your browser and navigate to:
-
+### 5️⃣ Open in Browser
 ```
 http://localhost:8080/FoodOrderingSystem/
 ```
 
----
-
-## 📚 Technical Documentation
-
-For detailed technical documentation including system architecture, database design, API endpoints, security implementation, and deployment guide, see:
-
-📄 **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)**
+> **Windows users:** Use the included `run.bat` to cleanly kill previous instances and restart.
 
 ---
 
-## 📸 Architecture
+## 🔒 Security
+
+| Threat | Mitigation Applied |
+|---|---|
+| **SQL Injection** | 100% `PreparedStatement` usage across all DAO classes |
+| **XSS (Cross-Site Scripting)** | JSTL `<c:out>` output encoding on all user-rendered data |
+| **Credential Exposure** | `db.properties` in `.gitignore` — password never committed to VCS |
+| **Session Fixation** | New session created on login; old session invalidated |
+| **Sensitive Data in Logs** | Passwords never logged; SLF4J parameterized logging |
+| **Connection Leaks** | HikariCP manages pool; explicit `finally` block cleanup |
+
+---
+
+## 📂 Project Structure
 
 ```
-┌───────────┐     ┌──────────────┐     ┌──────────┐     ┌─────────┐
-│   Browser  │────▶│   Servlets   │────▶│   DAO    │────▶│  MySQL  │
-│  (JSP/CSS) │◀────│ (Controller) │◀────│  (JDBC)  │◀────│   DB    │
-└───────────┘     └──────────────┘     └──────────┘     └─────────┘
+FoodExpress-Java-FullStack/
+├── sql/
+│   └── schema.sql                    # DB schema + seed data (20 restaurants)
+├── src/
+│   └── main/
+│       ├── java/com/foodapp/
+│       │   ├── dao/                  # DAO interfaces
+│       │   │   └── impl/             # DAO implementations
+│       │   ├── model/                # POJO models (User, Restaurant, Menu, Order)
+│       │   ├── servlet/              # Controller servlets
+│       │   └── util/                 # DBConnection (HikariCP)
+│       ├── resources/
+│       │   ├── db.properties.example # Safe credential template
+│       │   └── logback.xml           # Logging configuration
+│       └── webapp/
+│           ├── css/style.css         # Global stylesheet (dark theme)
+│           ├── js/app.js             # Frontend interactivity
+│           ├── images/               # Restaurant & food images
+│           ├── landing.jsp           # Public landing page (Zomato-style)
+│           ├── index.jsp             # Login page
+│           ├── register.jsp          # Registration page
+│           ├── home.jsp              # Restaurant listing
+│           ├── menu.jsp              # Restaurant menu
+│           ├── cart.jsp              # Shopping cart
+│           ├── checkout.jsp          # Order checkout
+│           ├── order-history.jsp     # Order history
+│           └── WEB-INF/web.xml       # Servlet configuration
+├── run.bat                           # Windows quick-start script
+├── pom.xml                           # Maven build configuration
+└── README.md
 ```
+
+---
+
+## 🍽️ Restaurants Featured (20+)
+
+The application comes pre-loaded with **20 authentic South Indian restaurants** including:
+
+| Restaurant | Specialty |
+|---|---|
+| Vasantha Bhavan | Pure Veg, Tiffin |
+| Murugan Idli Shop | Ghee Idli, Jigarthanda |
+| Ratna Cafe | Legendary Idli Sambar |
+| Anjappar Chettinad | Chettinad Spices |
+| Dindigul Thalappakatti | Seeraga Samba Biryani |
+| Nair Mess | Kerala Seafood |
+| Saravana Bhavan | Pure Veg Meals |
+| Buhari Hotel | Original Chicken 65 |
+| A2B — Adyar Ananda Bhavan | Sweets & Snacks |
+| Hotel Junior Kuppanna | Kongunadu |
+| *...and 10 more* | |
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ---
 
 ## 👨‍💻 Author
 
-**Krishnan** — Built with ❤️ using Java
+**Harikrishnan**
+Full-Stack Java Developer — Passionate about building real-world applications with clean architecture, secure code, and great user experience.
+
+---
+
+<div align="center">
+
+⭐ **If this project helped you or impressed you, please give it a star!** ⭐
+
+*Built with ❤️ and lots of ☕ filter coffee*
+
+</div>

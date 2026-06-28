@@ -1,30 +1,41 @@
-# === Maven Build ===
+# ===========================
+#  Internal Docs — Do Not Upload
+# ===========================
+TECHNICAL_DOCUMENTATION.md
+
+# ===========================
+#  Build Output
+# ===========================
 target/
 *.class
-*.jar
 *.war
+*.jar
 
-# === IDE Files ===
+# ===========================
+#  IDE Files
+# ===========================
 .idea/
 *.iml
 .vscode/
-*.swp
-*.swo
-*~
-.project
-.classpath
 .settings/
+.classpath
+.project
+*.factorypath
 
-# === OS Files ===
+# ===========================
+#  OS Files
+# ===========================
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# === Logs ===
+# ===========================
+#  Sensitive Credentials — NEVER COMMIT
+# ===========================
+src/main/resources/db.properties
+
+# ===========================
+#  Logs
+# ===========================
 *.log
-
-# === Antigravity ===
-.antigravityignore
-
-# === Confidential Data ===
-db.properties
+logs/
