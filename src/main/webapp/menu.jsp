@@ -7,8 +7,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Menu items from ${restaurant.name} - Order now on FoodExpress">
-    <title>FoodExpress — ${restaurant.name} Menu</title>
+    <meta name="description" content="Menu items from <c:out value='${restaurant.name}'/> - Order now on FoodExpress">
+    <title>FoodExpress — <c:out value="${restaurant.name}"/> Menu</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
@@ -25,12 +25,12 @@
                 <a href="${pageContext.request.contextPath}/cart" class="cart-link">
                     🛒 Cart
                     <c:if test="${not empty sessionScope.cartCount && sessionScope.cartCount > 0}">
-                        <span class="cart-badge">${sessionScope.cartCount}</span>
+                        <span class="cart-badge"><c:out value="${sessionScope.cartCount}"/></span>
                     </c:if>
                 </a>
                 <div class="user-info">
-                    <div class="user-avatar">${fn:substring(sessionScope.userName, 0, 1)}</div>
-                    <span>${sessionScope.userName}</span>
+                    <div class="user-avatar"><c:out value="${fn:substring(sessionScope.userName, 0, 1)}"/></div>
+                    <span><c:out value="${sessionScope.userName}"/></span>
                 </div>
                 <a href="${pageContext.request.contextPath}/logout" class="btn-logout">🚪 Logout</a>
             </div>
@@ -43,7 +43,7 @@
         <!-- Cart Reset Message -->
         <c:if test="${not empty sessionScope.cartMessage}">
             <div class="alert alert-warning" style="max-width: 900px; margin: 1rem auto;">
-                ⚠️ ${sessionScope.cartMessage}
+                ⚠️ <c:out value="${sessionScope.cartMessage}"/>
             </div>
             <c:remove var="cartMessage" scope="session"/>
         </c:if>
@@ -51,12 +51,12 @@
         <!-- Restaurant Header -->
         <div class="restaurant-header">
             <div class="rest-image">
-                <img src="${restaurant.imageUrl}" alt="${restaurant.name}"
+                <img src="<c:out value='${restaurant.imageUrl}'/>" alt="<c:out value='${restaurant.name}'/>"
                      onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200'">
             </div>
             <div class="rest-info">
-                <h1>${restaurant.name}</h1>
-                <p class="rest-cuisine">${restaurant.cuisine}</p>
+                <h1><c:out value="${restaurant.name}"/></h1>
+                <p class="rest-cuisine"><c:out value="${restaurant.cuisine}"/></p>
                 <div class="rest-meta">
                     <span><span class="rating-value">⭐ ${restaurant.rating}</span></span>
                     <span>🕐 ${restaurant.deliveryTime} min delivery</span>
@@ -77,12 +77,12 @@
                     <c:forEach var="item" items="${menuList}" varStatus="status">
                         <div class="menu-card" style="animation-delay: ${status.index * 0.05}s">
                             <div class="card-image">
-                                <img src="${item.imageUrl}" alt="${item.name}"
+                                <img src="<c:out value='${item.imageUrl}'/>" alt="<c:out value='${item.name}'/>"
                                      onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300'">
                             </div>
                             <div class="card-body">
-                                <h3 class="card-title">${item.name}</h3>
-                                <p class="card-description">${item.description}</p>
+                                <h3 class="card-title"><c:out value="${item.name}"/></h3>
+                                <p class="card-description"><c:out value="${item.description}"/></p>
                                 <div class="card-footer">
                                     <span class="price">₹<fmt:formatNumber value="${item.price}" pattern="#,##0.00"/></span>
                                     <span class="rating">⭐ ${item.rating}</span>

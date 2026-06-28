@@ -19,14 +19,32 @@ public interface RestaurantDAO {
     Restaurant getRestaurantById(int id);
 
     /**
-     * Get all active restaurants.
+     * Get all active restaurants (unpaged — used internally / admin).
      */
     List<Restaurant> getAllRestaurants();
+
+    /**
+     * Get a page of active restaurants.
+     *
+     * @param offset number of rows to skip  (page-1) * pageSize
+     * @param limit  number of rows to return (pageSize)
+     */
+    List<Restaurant> getRestaurantsPaged(int offset, int limit);
+
+    /**
+     * Total count of active restaurants (used to compute total pages).
+     */
+    int countAllRestaurants();
 
     /**
      * Search restaurants by name or cuisine keyword.
      */
     List<Restaurant> searchRestaurants(String keyword);
+
+    /**
+     * Count of active restaurants matching a search keyword.
+     */
+    int countSearchResults(String keyword);
 
     /**
      * Update restaurant details.
@@ -38,3 +56,4 @@ public interface RestaurantDAO {
      */
     boolean deleteRestaurant(int id);
 }
+

@@ -4,6 +4,8 @@ import com.foodapp.dao.UserDAO;
 import com.foodapp.dao.impl.UserDAOImpl;
 import com.foodapp.model.User;
 import com.foodapp.util.PasswordUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,6 +20,7 @@ import java.io.IOException;
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 
+    private static final Logger log = LoggerFactory.getLogger(RegisterServlet.class);
     private UserDAO userDAO;
 
     @Override
@@ -97,9 +100,11 @@ public class RegisterServlet extends HttpServlet {
         boolean success = userDAO.addUser(user);
 
         if (success) {
+            log.info("New user registered: username={}, email={}", username.trim(), email.trim());
             request.setAttribute("success", "Registration successful! Please login with your credentials.");
             request.getRequestDispatcher("/index.jsp").forward(request, response);
         } else {
+            log.error("Registration failed for username='{}'", username.trim());
             request.setAttribute("error", "Registration failed. Please try again.");
             preserveFormData(request, name, username, email, phone, address);
             request.getRequestDispatcher("/register.jsp").forward(request, response);

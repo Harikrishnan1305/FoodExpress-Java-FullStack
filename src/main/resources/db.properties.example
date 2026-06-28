@@ -1,1 +1,5 @@
-db.password=YOUR_MYSQL_PASSWORD
+# Database Configuration
+# Copy this file to db.properties and enter your actual database password
+# DO NOT commit db.properties to version control
+
+db.password=YOUR_MYSQL_PASSWORD_HERE

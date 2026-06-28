@@ -1,0 +1,6 @@
+@echo off
+echo Stopping any running Tomcat/Java processes...
+taskkill /F /IM java.exe /T 2>nul
+timeout /t 4 /nobreak >nul
+echo Starting FoodExpress App...
+mvn clean package cargo:run

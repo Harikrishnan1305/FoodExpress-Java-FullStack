@@ -1,30 +1,11 @@
-# === Maven Build ===
 target/
 *.class
-*.jar
-*.war
-
-# === IDE Files ===
+.settings/
+.classpath
+.project
 .idea/
 *.iml
-.vscode/
-*.swp
-*.swo
-*~
-.project
-.classpath
-.settings/
-
-# === OS Files ===
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# === Logs ===
 *.log
-
-# === Antigravity ===
-.antigravityignore
-
-# === Confidential Data ===
-db.properties
+.vscode/
+# Ignore sensitive database properties
+src/main/resources/db.properties
