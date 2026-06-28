@@ -24,8 +24,8 @@
                 <a href="${pageContext.request.contextPath}/home">🏠 Home</a>
                 <a href="${pageContext.request.contextPath}/cart" class="cart-link">🛒 Cart</a>
                 <div class="user-info">
-                    <div class="user-avatar"><c:out value="${fn:substring(sessionScope.userName, 0, 1)}"/></div>
-                    <span><c:out value="${sessionScope.userName}"/></span>
+                    <div class="user-avatar">${fn:substring(sessionScope.userName, 0, 1)}</div>
+                    <span>${sessionScope.userName}</span>
                 </div>
                 <a href="${pageContext.request.contextPath}/logout" class="btn-logout">🚪 Logout</a>
             </div>
@@ -48,19 +48,19 @@
             <div class="order-details-card">
                 <div class="detail-row">
                     <span class="label">Restaurant</span>
-                    <span><c:out value="${order.restaurantName}"/></span>
+                    <span class="value">${order.restaurantName}</span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Status</span>
-                    <span class="value" style="color: var(--success);">✅ <c:out value="${order.status}"/></span>
+                    <span class="value" style="color: var(--success);">✅ ${order.status}</span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Payment Mode</span>
-                    <span class="value"><c:out value="${order.paymentMode}"/></span>
+                    <span class="value">${order.paymentMode}</span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Delivery Address</span>
-                    <span class="value"><c:out value="${order.address}"/></span>
+                    <span class="value">${order.address}</span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Order Date</span>
@@ -74,7 +74,7 @@
                     <h4 style="margin-bottom: 0.8rem; font-family: var(--font-display); font-weight: 700;">Items Ordered</h4>
                     <c:forEach var="item" items="${orderItems}">
                         <div style="display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-secondary); font-size: 0.9rem;">
-                            <span><c:out value="${item.menuName}"/> × ${item.quantity}</span>
+                            <span>${item.menuName} × ${item.quantity}</span>
                             <span style="font-weight: 600; color: var(--text-primary);">₹<fmt:formatNumber value="${item.price * item.quantity}" pattern="#,##0.00"/></span>
                         </div>
                     </c:forEach>

@@ -7,9 +7,9 @@
     <display-name>Online Food Ordering System</display-name>
     <description>A Swiggy/Zomato clone - Food Ordering Web Application</description>
 
-    <!-- Welcome File — Landing page shown before login -->
+    <!-- Welcome File -->
     <welcome-file-list>
-        <welcome-file>landing.jsp</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
     <!-- Session Configuration (30 minutes) -->

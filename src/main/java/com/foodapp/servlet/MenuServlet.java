@@ -6,8 +6,6 @@ import com.foodapp.dao.impl.MenuDAOImpl;
 import com.foodapp.dao.impl.RestaurantDAOImpl;
 import com.foodapp.model.Menu;
 import com.foodapp.model.Restaurant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,7 +20,6 @@ import java.util.List;
 @WebServlet("/menu")
 public class MenuServlet extends HttpServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(MenuServlet.class);
     private MenuDAO menuDAO;
     private RestaurantDAO restaurantDAO;
 
@@ -56,7 +53,6 @@ public class MenuServlet extends HttpServlet {
             // Get restaurant details
             Restaurant restaurant = restaurantDAO.getRestaurantById(restaurantId);
             if (restaurant == null) {
-                log.warn("Restaurant not found: id={}", restaurantId);
                 request.setAttribute("error", "Restaurant not found.");
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
                 return;
@@ -64,15 +60,12 @@ public class MenuServlet extends HttpServlet {
 
             // Get menu items for this restaurant
             List<Menu> menuList = menuDAO.getMenuByRestaurantId(restaurantId);
-            log.debug("Loaded menu: restaurantId={}, restaurantName='{}', items={}",
-                    restaurantId, restaurant.getName(), menuList.size());
 
             request.setAttribute("restaurant", restaurant);
             request.setAttribute("menuList", menuList);
             request.getRequestDispatcher("/menu.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
-            log.warn("Invalid restaurantId param: '{}'", restaurantIdParam);
             response.sendRedirect(request.getContextPath() + "/home");
         }
     }

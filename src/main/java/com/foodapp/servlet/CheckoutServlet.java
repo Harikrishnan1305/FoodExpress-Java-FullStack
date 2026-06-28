@@ -3,8 +3,6 @@ package com.foodapp.servlet;
 import com.foodapp.dao.OrderDAO;
 import com.foodapp.dao.impl.OrderDAOImpl;
 import com.foodapp.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,7 +19,6 @@ import java.util.List;
 @WebServlet("/checkout")
 public class CheckoutServlet extends HttpServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(CheckoutServlet.class);
     private OrderDAO orderDAO;
 
     @Override
@@ -118,8 +115,6 @@ public class CheckoutServlet extends HttpServlet {
         int orderId = orderDAO.placeOrder(order, orderItems);
 
         if (orderId > 0) {
-            log.info("Order placed: orderId={}, userId={}, restaurantId={}, amount={}",
-                    orderId, user.getId(), cart.getRestaurantId(), cart.getTotal());
             // Success — clear the cart
             cart.clear();
             session.setAttribute("cart", cart);
@@ -134,8 +129,6 @@ public class CheckoutServlet extends HttpServlet {
             request.getRequestDispatcher("/order-confirmation.jsp").forward(request, response);
 
         } else {
-            log.error("Order placement failed: userId={}, restaurantId={}",
-                    user.getId(), cart.getRestaurantId());
             // Failure
             request.setAttribute("error", "Failed to place order. Please try again.");
             request.setAttribute("cart", cart);

@@ -25,12 +25,12 @@
                 <a href="${pageContext.request.contextPath}/cart" class="cart-link active">
                     🛒 Cart
                     <c:if test="${not empty sessionScope.cartCount && sessionScope.cartCount > 0}">
-                        <span class="cart-badge"><c:out value="${sessionScope.cartCount}"/></span>
+                        <span class="cart-badge">${sessionScope.cartCount}</span>
                     </c:if>
                 </a>
                 <div class="user-info">
-                    <div class="user-avatar"><c:out value="${fn:substring(sessionScope.userName, 0, 1)}"/></div>
-                    <span><c:out value="${sessionScope.userName}"/></span>
+                    <div class="user-avatar">${fn:substring(sessionScope.userName, 0, 1)}</div>
+                    <span>${sessionScope.userName}</span>
                 </div>
                 <a href="${pageContext.request.contextPath}/logout" class="btn-logout">🚪 Logout</a>
             </div>
@@ -43,13 +43,13 @@
 
             <c:choose>
                 <%-- ===== Cart has items ===== --%>
-                <c:when test="${not empty cart.cartItems}">
+                <c:when test="${not empty cart && !cart.empty}">
 
                     <!-- Cart Header -->
                     <div class="cart-header">
                         <h2>🛒 Your Cart</h2>
                         <div class="cart-restaurant-info">
-                            🏗️ Ordering from: <strong><c:out value="${cart.restaurantName}"/></strong>
+                            🏪 Ordering from: <strong>${cart.restaurantName}</strong>
                         </div>
                     </div>
 
@@ -57,12 +57,12 @@
                     <c:forEach var="item" items="${cart.cartItems}">
                         <div class="cart-item">
                             <div class="item-image">
-                                <img src="<c:out value='${item.imageUrl}'/>" alt="<c:out value='${item.name}'/>"
+                                <img src="${item.imageUrl}" alt="${item.name}"
                                      onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'">
                             </div>
 
                             <div class="item-details">
-                                <div class="item-name"><c:out value="${item.name}"/></div>
+                                <div class="item-name">${item.name}</div>
                                 <div class="item-price">₹<fmt:formatNumber value="${item.price}" pattern="#,##0.00"/> each</div>
                             </div>
 

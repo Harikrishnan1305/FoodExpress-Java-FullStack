@@ -3,8 +3,6 @@ package com.foodapp.servlet;
 import com.foodapp.dao.UserDAO;
 import com.foodapp.dao.impl.UserDAOImpl;
 import com.foodapp.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,7 +17,6 @@ import java.io.IOException;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(LoginServlet.class);
     private UserDAO userDAO;
 
     @Override
@@ -65,10 +62,9 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("userId", user.getId());
             session.setAttribute("userName", user.getName());
             session.setMaxInactiveInterval(30 * 60); // 30 minutes
-            log.info("User logged in: username={}, userId={}", user.getUsername(), user.getId());
+
             response.sendRedirect(request.getContextPath() + "/home");
         } else {
-            log.warn("Failed login attempt for username='{}'", username);
             request.setAttribute("error", "Invalid username or password. Please try again.");
             request.setAttribute("username", username);
             request.getRequestDispatcher("/index.jsp").forward(request, response);

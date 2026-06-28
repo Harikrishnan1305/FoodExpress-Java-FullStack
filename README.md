@@ -1,98 +1,157 @@
-# 🍔 FoodExpress - Full-Stack Java Food Delivery Application
+# 🍔 Online Food Ordering System
 
-![Java](https://img.shields.io/badge/Java-11%2B-ED8B00?style=for-the-badge&logo=java&logoColor=white)
-![Servlets](https://img.shields.io/badge/Java_Servlets-Jakarta-EE2432?style=for-the-badge&logo=jakartaee&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Maven](https://img.shields.io/badge/Apache_Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
-![HTML/CSS/JS](https://img.shields.io/badge/Frontend-HTML_CSS_JS-E34F26?style=for-the-badge)
+A full-stack **Swiggy/Zomato clone** built with Java Servlets, JSP, JDBC, and MySQL. Features a premium dark-themed responsive UI with session-based cart management and secure user authentication.
 
-**FoodExpress** is a robust, end-to-end online food ordering platform inspired by Zomato & Swiggy. Built entirely with core Java EE technologies, this project demonstrates a strong understanding of web architecture, MVC design patterns, session management, and secure database operations.
-
----
-
-## 🌟 Key Features
-
-*   **Modern User Interface:** A highly responsive, Zomato-inspired landing page built with custom CSS variables, flexbox/grid layouts, and glassmorphism UI elements.
-*   **Secure Authentication:** User registration and login system with encrypted password handling and secure session management.
-*   **Dynamic Catalog:** Browse 20+ restaurants, view detailed menus, and filter by cuisine (South Indian, Biryani, Chettinad, etc.).
-*   **Smart Cart System:** Session-based shopping cart allowing users to add/remove items and calculate real-time totals.
-*   **Checkout & Order History:** Complete order processing pipeline. Users can place orders and view their complete order history with timestamps and status tracking.
-*   **Robust Backend:** Built with Java Servlets, JSP (JavaServer Pages), and HikariCP for high-performance database connection pooling.
-*   **Security Built-in:** Implemented protections against XSS (Cross-Site Scripting) and SQL Injection using Prepared Statements.
-
-## 🛠️ Tech Stack & Architecture
-
-### Backend
-*   **Language:** Java (JDK 11+)
-*   **Framework:** Java Servlets & JSP (Jakarta EE)
-*   **Build Tool:** Apache Maven
-*   **Database:** MySQL 8.0
-*   **Connection Pooling:** HikariCP
-*   **Logging:** SLF4J with Logback
-
-### Frontend
-*   **Markup/Styling:** HTML5, CSS3 (Custom Variables, Grid/Flexbox)
-*   **Scripting:** Vanilla JavaScript
-*   **Templating:** JSTL (JSP Standard Tag Library) and EL (Expression Language)
-
-### Architecture Pattern (MVC)
-The application strictly follows the **Model-View-Controller (MVC)** design pattern:
-1.  **Model:** Data Access Objects (DAO), POJO classes (Restaurant, Menu, User, Order).
-2.  **View:** JSP files dynamically rendering data passed from controllers.
-3.  **Controller:** Java Servlets handling HTTP requests, business logic, and routing.
+![Java](https://img.shields.io/badge/Java-11-orange?style=for-the-badge&logo=java)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?style=for-the-badge&logo=mysql)
+![Maven](https://img.shields.io/badge/Maven-3.x-red?style=for-the-badge&logo=apache-maven)
+![Servlet](https://img.shields.io/badge/Servlet-4.0-green?style=for-the-badge)
 
 ---
 
-## 🚀 Getting Started
+## ✨ Features
 
-Follow these steps to get the project running on your local machine.
+- 🔐 **User Authentication** — Register/Login with SHA-256 password hashing
+- 🏪 **Restaurant Browsing** — Browse restaurants with ratings and cuisine info
+- 📋 **Menu Management** — View categorized menus with item details and pricing
+- 🛒 **Smart Cart System** — Session-based cart with restaurant-switch logic
+- 📦 **Order Placement** — Checkout with order confirmation and database transaction management
+- 🎨 **Premium Dark UI** — Modern, responsive design with glassmorphism effects
 
-### Prerequisites
-*   Java Development Kit (JDK 11 or higher)
-*   Apache Maven
-*   MySQL Server (8.0+)
-*   Apache Tomcat (9.0+)
+---
 
-### 1. Database Setup
-1. Log into your MySQL server.
-2. Execute the schema script provided in the `sql` directory:
-   ```bash
-   mysql -u root -p < sql/schema.sql
-   ```
-   *(This creates the `food_ordering_db` database and populates it with 20 restaurants and menu items).*
+## 🏗️ Tech Stack
 
-### 2. Configure Credentials
-1. Navigate to `src/main/resources/`.
-2. Copy `db.properties.example` to `db.properties`.
-3. Open `db.properties` and add your MySQL root password:
-   ```properties
-   db.password=YOUR_MYSQL_PASSWORD_HERE
-   ```
-   *Note: `db.properties` is git-ignored to prevent credential leaks.*
+| Layer       | Technology                        |
+|-------------|-----------------------------------|
+| **Frontend**  | JSP, JSTL, HTML5, CSS3, JavaScript |
+| **Backend**   | Java Servlets (Servlet 4.0)       |
+| **Database**  | MySQL 8.0 with JDBC               |
+| **Build Tool**| Apache Maven                      |
+| **Server**    | Apache Tomcat 9                   |
+| **Security**  | SHA-256 Password Hashing          |
 
-### 3. Build & Run
-The project uses the Cargo Maven plugin for embedded Tomcat execution.
-Open your terminal in the project root and run:
-```bash
-mvn clean package cargo:run
+---
+
+## 📁 Project Structure
+
 ```
-*(If you are on Windows, you can also use the included `run.bat` script to cleanly kill old processes and restart).*
-
-### 4. Access the Application
-Open your browser and navigate to:
-**[http://localhost:8080/FoodOrderingSystem/](http://localhost:8080/FoodOrderingSystem/)**
+Online Food Ordering System using Java/
+├── pom.xml
+├── sql/
+│   └── schema.sql                    # Database schema & seed data
+├── src/main/
+│   ├── java/com/foodapp/
+│   │   ├── dao/                      # Data Access Objects (interfaces)
+│   │   │   └── impl/                 # DAO implementations
+│   │   ├── model/                    # POJO models
+│   │   ├── servlet/                  # Servlet controllers
+│   │   └── util/                     # Utility classes (DB, Password)
+│   └── webapp/
+│       ├── WEB-INF/
+│       ├── css/                      # Stylesheets
+│       ├── js/                       # JavaScript files
+│       ├── index.jsp                 # Login page
+│       ├── register.jsp              # Registration page
+│       ├── home.jsp                  # Restaurant listing
+│       ├── menu.jsp                  # Restaurant menu
+│       ├── cart.jsp                  # Shopping cart
+│       ├── checkout.jsp              # Checkout page
+│       ├── order-confirmation.jsp    # Order confirmation
+│       └── error.jsp                 # Error page
+```
 
 ---
 
-## 🔒 Security Measures Implemented
-*   **Environment Variables:** Sensitive DB credentials loaded via `.properties` files and environment variable fallbacks, never hardcoded.
-*   **SQL Injection Prevention:** 100% usage of `PreparedStatement` in DAO layers.
-*   **XSS Protection:** Output encoding utilized in JSTL `<c:out>` tags across all Views.
-*   **Resource Management:** Explicit closing of ResultSets and Statements in `finally` blocks, supplemented by HikariCP connection pooling to prevent leaks.
+## ⚙️ Prerequisites
+
+- **Java JDK** 11 or higher
+- **Apache Maven** 3.x
+- **MySQL** 8.0
+- **Apache Tomcat** 9.x
+
+---
+
+## 🚀 Setup & Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Harikrishnan1305/Online-Food-Ordering-System.git
+cd Online-Food-Ordering-System
+```
+
+### 2. Set Up the Database
+
+```bash
+mysql -u root -p < sql/schema.sql
+```
+
+### 3. Configure Database Credentials
+
+Edit `src/main/java/com/foodapp/util/DBConnection.java` and update:
+
+```java
+private static final String URL = "jdbc:mysql://localhost:3306/food_ordering_db";
+private static final String USERNAME = "root";
+private static final String PASSWORD = "YOUR_MYSQL_PASSWORD";  // ← Set your password
+```
+
+### 4. Build the Project
+
+```bash
+mvn clean package
+```
+
+### 5. Deploy to Tomcat
+
+Copy the generated `target/FoodOrderingSystem.war` to your Tomcat `webapps/` directory, then start Tomcat.
+
+### 6. Access the Application
+
+Open your browser and navigate to:
+
+```
+http://localhost:8080/FoodOrderingSystem/
+```
+
+---
+
+## 📚 Technical Documentation
+
+For detailed technical documentation including system architecture, database design, API endpoints, security implementation, and deployment guide, see:
+
+📄 **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)**
+
+---
+
+## 📸 Architecture
+
+```
+┌───────────┐     ┌──────────────┐     ┌──────────┐     ┌─────────┐
+│   Browser  │────▶│   Servlets   │────▶│   DAO    │────▶│  MySQL  │
+│  (JSP/CSS) │◀────│ (Controller) │◀────│  (JDBC)  │◀────│   DB    │
+└───────────┘     └──────────────┘     └──────────┘     └─────────┘
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
 
 ## 👨‍💻 Author
-**Krishnan**
-Full-Stack Java Developer passionate about building scalable, secure web applications.
 
----
-*Feel free to star ⭐ this repository if you found it useful or inspiring!*
+**Krishnan** — Built with ❤️ using Java
