@@ -1,950 +1,558 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%
+    // If already logged in → go to home directly
+    if (session.getAttribute("user") != null) {
+        response.sendRedirect(request.getContextPath() + "/home");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FoodExpress — Order food online from the best South Indian restaurants near you. Fast delivery, great taste.">
-    <title>FoodExpress — Discover the best food in Chennai</title>
+    <meta name="description" content="FoodExpress — Order food from 100+ restaurants. Delivered hot, every time.">
+    <title>FoodExpress — Delivered Hot. Every Time.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-        :root {
+        /* ── DARK MODE (default) ── */
+        :root, [data-theme="dark"] {
             --primary: #E23744;
-            --primary-dark: #C0392B;
             --orange: #FF6B35;
-            --orange-dark: #E55A2B;
-            --bg: #FFFFFF;
-            --bg-gray: #F8F8F8;
-            --bg-dark: #1C1C1C;
-            --text: #1C1C1C;
-            --text-muted: #696969;
-            --text-light: #9E9E9E;
-            --border: #E8E8E8;
-            --shadow: 0 4px 24px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
-            --radius: 16px;
-            --radius-sm: 8px;
-            --radius-full: 50px;
-            --green: #48C479;
+            --gold: #FFD700;
+            --primary-glow: rgba(226,55,68,0.3);
+            --orange-glow: rgba(255,107,53,0.2);
+            --bg: #0A0A0F;
+            --bg2: #0F0F1A;
+            --text: #F0F0FF;
+            --text-muted: rgba(240,240,255,0.55);
+            --border: rgba(255,255,255,0.07);
+            --glass: rgba(255,255,255,0.05);
+            --nav-bg: rgba(10,10,15,0.75);
+            --feature-bg: rgba(255,255,255,0.05);
+            --feature-hover: rgba(255,255,255,0.07);
+            --footer-bg: transparent;
+            --radius: 18px;
+            --radius-full: 100px;
+            --transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
         }
 
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); overflow-x: hidden; }
+        /* ── LIGHT MODE ── */
+        [data-theme="light"] {
+            --primary: #D62B38;
+            --orange: #F05A28;
+            --gold: #E6A800;
+            --primary-glow: rgba(214,43,56,0.2);
+            --orange-glow: rgba(240,90,40,0.15);
+            --bg: #FFFFFF;
+            --bg2: #F8F8FB;
+            --text: #111111;
+            --text-muted: rgba(17,17,17,0.55);
+            --border: rgba(0,0,0,0.1);
+            --glass: rgba(0,0,0,0.03);
+            --nav-bg: rgba(255,255,255,0.88);
+            --feature-bg: #F8F8FB;
+            --feature-hover: #F0F0F7;
+            --footer-bg: #F8F8FB;
+        }
 
-        a { text-decoration: none; color: inherit; }
-        img { max-width: 100%; display: block; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            transition: background 0.4s, color 0.4s;
+        }
 
-        /* ===== NAVBAR ===== */
+        /* ── ANIMATED BACKGROUND ── */
+        .bg-layer {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            overflow: hidden;
+        }
+        .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(80px); opacity: 0.5;
+            animation: orbFloat 8s ease-in-out infinite alternate;
+        }
+        .orb1 { width:600px; height:600px; top:-200px; right:-100px; background:radial-gradient(circle, rgba(226,55,68,0.35) 0%, transparent 70%); animation-delay:0s; }
+        .orb2 { width:500px; height:500px; bottom:-200px; left:-100px; background:radial-gradient(circle, rgba(255,107,53,0.25) 0%, transparent 70%); animation-delay:-3s; }
+        .orb3 { width:400px; height:400px; top:40%; left:40%; background:radial-gradient(circle, rgba(100,0,255,0.1) 0%, transparent 70%); animation-delay:-5s; }
+        @keyframes orbFloat {
+            from { transform: translate(0,0) scale(1); }
+            to { transform: translate(40px,30px) scale(1.08); }
+        }
+
+        /* ── NAVBAR ── */
         .nav {
-            position: sticky; top: 0; z-index: 999;
-            background: rgba(255,255,255,0.96);
-            backdrop-filter: blur(20px);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 0 2.5rem;
             border-bottom: 1px solid var(--border);
-            padding: 0 2rem;
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: var(--nav-bg);
+            transition: background 0.4s, border-color 0.4s;
         }
         .nav-inner {
             max-width: 1280px; margin: 0 auto;
-            display: flex; align-items: center; gap: 24px; height: 72px;
+            display: flex; align-items: center; height: 70px; gap: 16px;
         }
         .nav-logo {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.8rem; font-weight: 900;
-            color: var(--primary);
-            letter-spacing: -1px;
-            flex-shrink: 0;
+            font-size: 1.7rem; font-weight: 900; letter-spacing:-1.5px;
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; flex-shrink: 0;
         }
-        .nav-logo span { color: var(--orange); }
-        .nav-location {
-            display: flex; align-items: center; gap: 6px;
-            padding: 8px 14px; border: 1px solid var(--border);
-            border-radius: var(--radius-sm); cursor: pointer;
-            font-size: 0.85rem; color: var(--text-muted);
-            transition: all 0.2s; flex-shrink: 0;
+        .nav-logo span {
+            background: linear-gradient(135deg, var(--orange), var(--gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .nav-location:hover { border-color: var(--primary); color: var(--primary); }
-        .nav-search {
-            flex: 1; display: flex; align-items: center;
-            background: var(--bg-gray); border: 1px solid var(--border);
-            border-radius: var(--radius-sm); padding: 10px 16px; gap: 10px;
-            transition: all 0.2s; max-width: 440px;
-        }
-        .nav-search:focus-within { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(226,55,68,0.1); }
-        .nav-search input { border: none; background: transparent; flex: 1; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text); outline: none; }
-        .nav-search input::placeholder { color: var(--text-light); }
-        .nav-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-        .btn-login {
-            padding: 9px 22px; border: 1.5px solid var(--primary); border-radius: var(--radius-sm);
-            color: var(--primary); font-weight: 600; font-size: 0.9rem;
-            background: transparent; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
-        }
-        .btn-login:hover { background: rgba(226,55,68,0.06); }
-        .btn-signup {
-            padding: 9px 22px; background: var(--primary); border: 1.5px solid var(--primary);
-            border-radius: var(--radius-sm); color: white; font-weight: 600; font-size: 0.9rem;
-            cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
-        }
-        .btn-signup:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+        .nav-spacer { flex: 1; }
+        .nav-links { display: flex; align-items: center; gap: 8px; }
 
-        /* ===== HERO ===== */
+        .btn-ghost {
+            padding: 9px 18px; border-radius: var(--radius-full);
+            border: 1.5px solid var(--border);
+            color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.875rem;
+            cursor: pointer; transition: var(--transition);
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+            background: var(--glass);
+            backdrop-filter: blur(8px);
+        }
+        .btn-ghost:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+
+        .btn-primary {
+            padding: 9px 22px; border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            color: white; font-weight: 700; font-size: 0.875rem;
+            cursor: pointer; transition: var(--transition);
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 16px var(--primary-glow);
+            border: none;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--primary-glow); filter:brightness(1.08); }
+
+        /* ── HERO ── */
         .hero {
-            position: relative; min-height: 480px;
-            background: linear-gradient(135deg, #1C1C1C 0%, #2D1B00 40%, #3D1010 100%);
-            display: flex; align-items: center; overflow: hidden;
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 100px 2.5rem 4rem;
+            text-align: center;
         }
-        .hero::before {
-            content: ''; position: absolute; inset: 0;
-            background: url('https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=1400&auto=format') center/cover;
-            opacity: 0.25;
-        }
-        .hero::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(28,28,28,0.92) 0%, rgba(226,55,68,0.3) 60%, rgba(255,107,53,0.2) 100%);
-        }
-        .hero-content {
-            position: relative; z-index: 2;
-            max-width: 1280px; margin: 0 auto; padding: 4rem 2rem; width: 100%;
-        }
-        .hero-badge {
+        .hero-inner { max-width: 800px; margin: 0 auto; }
+
+        .hero-tag {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 6px 16px; border-radius: var(--radius-full);
-            color: rgba(255,255,255,0.9); font-size: 0.8rem; font-weight: 500;
-            margin-bottom: 1.5rem;
+            padding: 7px 18px; border-radius: var(--radius-full);
+            background: rgba(226,55,68,0.12);
+            border: 1px solid rgba(226,55,68,0.25);
+            color: var(--primary); font-size: 0.82rem; font-weight: 700;
+            margin-bottom: 2rem; letter-spacing: 0.3px;
+            animation: fadeDown 0.6s ease both;
         }
-        .hero h1 {
+        .tag-dot { width:8px; height:8px; border-radius:50%; background:var(--primary); animation:blink 1.5s ease infinite; }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+        .hero-title {
             font-family: 'Outfit', sans-serif;
-            font-size: clamp(2.2rem, 5vw, 3.8rem);
-            font-weight: 900; color: white; line-height: 1.15;
-            margin-bottom: 1rem; max-width: 600px;
+            font-size: clamp(2.6rem, 7vw, 5rem);
+            font-weight: 900; line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.7s ease 0.1s both;
         }
-        .hero h1 .highlight { color: var(--orange); }
-        .hero p { color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 2rem; max-width: 500px; }
-        .hero-search {
-            display: flex; max-width: 580px;
-            background: white; border-radius: var(--radius-sm);
-            overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        .hero-title .line1 { display: block; color: var(--text); }
+        .hero-title .line2 {
+            display: block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--orange) 50%, var(--gold) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite, fadeUp 0.7s ease 0.1s both;
         }
-        .hero-search-loc {
-            display: flex; align-items: center; gap: 8px;
-            padding: 0 18px; border-right: 1px solid var(--border);
-            min-width: 160px; cursor: pointer;
+        @keyframes shimmer { to { background-position: 200% center; } }
+
+        .hero-subtitle {
+            color: var(--text-muted);
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            line-height: 1.65; max-width: 560px; margin: 0 auto 2.5rem;
+            animation: fadeUp 0.7s ease 0.2s both;
         }
-        .hero-search-loc span { font-size: 0.85rem; color: var(--text); font-weight: 500; white-space: nowrap; }
-        .hero-search input {
-            flex: 1; border: none; padding: 18px 16px;
-            font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text); outline: none;
+
+        /* CTA buttons */
+        .hero-cta {
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; flex-wrap: wrap;
+            animation: fadeUp 0.7s ease 0.3s both;
         }
-        .hero-search input::placeholder { color: var(--text-light); }
-        .hero-search-btn {
-            padding: 0 28px; background: var(--primary); color: white;
-            border: none; font-family: 'Outfit', sans-serif; font-weight: 700;
-            font-size: 1rem; cursor: pointer; transition: background 0.2s; white-space: nowrap;
+        .btn-hero {
+            padding: 14px 34px; border-radius: var(--radius-full);
+            font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800;
+            cursor: pointer; transition: var(--transition);
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
         }
-        .hero-search-btn:hover { background: var(--primary-dark); }
+        .btn-hero-primary {
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            color: white; border: none;
+            box-shadow: 0 6px 24px var(--primary-glow);
+        }
+        .btn-hero-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 36px var(--primary-glow); }
+        .btn-hero-secondary {
+            background: var(--glass); border: 1.5px solid var(--border);
+            color: var(--text); backdrop-filter: blur(10px);
+        }
+        .btn-hero-secondary:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-2px); background: rgba(255,255,255,0.08); }
+
+        /* Stats row */
         .hero-stats {
-            display: flex; gap: 2rem; margin-top: 2.5rem;
+            display: flex; align-items: center; justify-content: center; gap: 40px;
+            margin-top: 3.5rem; flex-wrap: wrap;
+            animation: fadeUp 0.7s ease 0.45s both;
         }
-        .hero-stat { text-align: center; }
-        .hero-stat .num { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: white; }
-        .hero-stat .label { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+        .stat-item { text-align: center; }
+        .stat-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem; font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; line-height: 1;
+        }
+        .stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .stat-sep { width: 1px; height: 40px; background: var(--border); }
 
-        /* ===== TABS ===== */
-        .tabs-bar {
-            background: white; border-bottom: 2px solid var(--border); padding: 0 2rem;
-            position: sticky; top: 72px; z-index: 99;
+        /* ── FOOD CARDS ROW ── */
+        .food-strip {
+            position: relative; z-index: 1;
+            padding: 1rem 0 5rem;
+            overflow: hidden;
         }
-        .tabs-inner { max-width: 1280px; margin: 0 auto; display: flex; gap: 0; }
-        .tab-item {
-            display: flex; align-items: center; gap: 8px;
-            padding: 14px 24px; font-size: 0.92rem; font-weight: 600;
-            color: var(--text-muted); border-bottom: 3px solid transparent;
-            cursor: pointer; transition: all 0.2s; margin-bottom: -2px;
+        .food-strip-title {
+            text-align: center; font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem; font-weight: 800; margin-bottom: 2rem;
+            color: var(--text);
         }
-        .tab-item:hover { color: var(--primary); }
-        .tab-item.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .tab-item .tab-icon { font-size: 1.2rem; }
+        .food-strip-title span {
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-        /* ===== SECTION WRAPPER ===== */
-        .section { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2rem; }
-        .section-title { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 0.4rem; }
-        .section-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .scroll-track {
+            display: flex; gap: 16px;
+            animation: scrollLeft 30s linear infinite;
+            width: max-content;
+        }
+        .scroll-track:hover { animation-play-state: paused; }
+        @keyframes scrollLeft {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
 
-        /* ===== FOOD CATEGORIES ===== */
-        .categories-scroll {
-            display: flex; gap: 1.2rem; overflow-x: auto; padding-bottom: 8px;
-            scrollbar-width: none;
-        }
-        .categories-scroll::-webkit-scrollbar { display: none; }
-        .cat-item {
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-            flex-shrink: 0; cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .cat-item:hover { transform: translateY(-4px); }
-        .cat-circle {
-            width: 100px; height: 100px; border-radius: 50%; overflow: hidden;
-            border: 2px solid var(--border); box-shadow: var(--shadow);
-            transition: all 0.2s;
-        }
-        .cat-item:hover .cat-circle { border-color: var(--primary); box-shadow: 0 4px 20px rgba(226,55,68,0.15); }
-        .cat-circle img { width: 100%; height: 100%; object-fit: cover; }
-        .cat-label { font-size: 0.82rem; font-weight: 600; color: var(--text); text-align: center; }
-
-        /* ===== COLLECTIONS ===== */
-        .collections-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
-        .collection-card {
-            border-radius: var(--radius); overflow: hidden; position: relative;
-            height: 180px; cursor: pointer; box-shadow: var(--shadow);
-            transition: all 0.3s;
-        }
-        .collection-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .collection-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
-        .collection-card:hover img { transform: scale(1.06); }
-        .collection-card .overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%);
-        }
-        .collection-card .col-info {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 16px;
-        }
-        .collection-card .col-name { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: white; }
-        .collection-card .col-count { font-size: 0.78rem; color: rgba(255,255,255,0.7); margin-top: 2px; }
-
-        /* ===== RESTAURANT CARDS ===== */
-        .restaurants-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-        .rest-card {
-            border-radius: var(--radius); overflow: hidden; background: white;
-            box-shadow: var(--shadow); cursor: pointer; transition: all 0.3s;
+        .food-card-mini {
+            width: 200px; height: 200px; border-radius: var(--radius);
+            overflow: hidden; flex-shrink: 0;
+            position: relative;
             border: 1px solid var(--border);
         }
-        .rest-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-        .rest-card-img {
-            height: 190px; overflow: hidden; position: relative;
+        .food-card-mini img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.5s ease;
         }
-        .rest-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
-        .rest-card:hover .rest-card-img img { transform: scale(1.06); }
-        .rest-card-img .promo-badge {
+        .food-card-mini:hover img { transform: scale(1.08); }
+        .food-card-mini-label {
             position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-            padding: 20px 14px 10px;
-            color: white; font-size: 0.8rem; font-weight: 600;
+            padding: 10px 12px;
+            background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+            font-size: 0.82rem; font-weight: 700; color: white;
         }
-        .rest-card-img .discount-tag {
-            position: absolute; top: 10px; left: 10px;
-            background: var(--primary); color: white;
-            padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;
+
+        /* ── FEATURES ── */
+        .features {
+            position: relative; z-index: 1;
+            max-width: 1100px; margin: 0 auto;
+            padding: 4rem 2.5rem;
         }
-        .rest-card-body { padding: 14px 14px 16px; }
-        .rest-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-        .rest-card-name { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text); }
-        .rest-card-rating {
-            display: flex; align-items: center; gap: 4px;
-            background: var(--green); color: white; padding: 3px 8px;
-            border-radius: 4px; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+        .features-title {
+            text-align: center; font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem; font-weight: 800;
+            margin-bottom: 2.5rem; color: var(--text);
         }
-        .rest-card-cuisine { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; }
-        .rest-card-meta {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 0.8rem; color: var(--text-muted); padding-top: 8px;
+        .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; }
+        .feature-card {
+            background: var(--feature-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 28px 24px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+        .feature-card:hover { border-color: rgba(226,55,68,0.3); transform: translateY(-4px); background: var(--feature-hover); }
+        .feature-icon { font-size: 2.2rem; margin-bottom: 14px; }
+        .feature-title { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
+        .feature-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+        /* ── FINAL CTA ── */
+        .final-cta {
+            position: relative; z-index: 1;
+            text-align: center; padding: 5rem 2.5rem 6rem;
+        }
+        .final-cta-box {
+            max-width: 620px; margin: 0 auto;
+            background: linear-gradient(135deg, rgba(226,55,68,0.12), rgba(255,107,53,0.08));
+            border: 1px solid rgba(226,55,68,0.2);
+            border-radius: 28px; padding: 3.5rem 2.5rem;
+            backdrop-filter: blur(20px);
+        }
+        .final-cta h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.5px;
+        }
+        .final-cta p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; }
+        .final-cta-btns { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+        /* FOOTER */
+        .footer {
+            position: relative; z-index: 1;
             border-top: 1px solid var(--border);
+            padding: 2rem 2.5rem;
+            text-align: center; color: var(--text-muted); font-size: 0.8rem;
         }
-        .rest-card-meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-light); }
+        .footer-logo {
+            font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 6px;
+        }
 
-        /* ===== BRAND LOGOS ===== */
-        .brands-scroll { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-        .brands-scroll::-webkit-scrollbar { display: none; }
-        .brand-card {
-            flex-shrink: 0; width: 120px; border-radius: var(--radius);
-            border: 1px solid var(--border); overflow: hidden; cursor: pointer;
-            transition: all 0.2s; box-shadow: var(--shadow);
-        }
-        .brand-card:hover { transform: translateY(-3px); border-color: var(--primary); }
-        .brand-card img { width: 100%; height: 80px; object-fit: cover; }
-        .brand-card .brand-name { font-size: 0.75rem; font-weight: 600; color: var(--text); padding: 8px 10px; text-align: center; }
-        .brand-card .brand-sub { font-size: 0.68rem; color: var(--text-muted); padding: 0 10px 8px; text-align: center; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+        @keyframes fadeDown { from{opacity:0;transform:translateY(-12px);} to{opacity:1;transform:translateY(0);} }
 
-        /* ===== PROMO BANNER ===== */
-        .promo-banner {
-            background: linear-gradient(135deg, #1C1C1C 0%, #3D1010 100%);
-            border-radius: var(--radius); padding: 2.5rem 2.5rem;
-            display: flex; align-items: center; justify-content: space-between;
-            overflow: hidden; position: relative; margin: 0 2rem;
-            max-width: 1280px; margin: 0 auto;
+        /* Theme toggle */
+        .theme-toggle {
+            width: 38px; height: 38px; border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: var(--glass); backdrop-filter: blur(10px);
+            font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition); color: var(--text);
+            flex-shrink: 0;
         }
-        .promo-banner::before {
-            content: ''; position: absolute; inset: 0;
-            background: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800') center/cover;
-            opacity: 0.15;
-        }
-        .promo-content { position: relative; z-index: 1; }
-        .promo-badge-label { background: var(--orange); color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: inline-block; margin-bottom: 12px; }
-        .promo-title { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 900; color: white; line-height: 1.2; margin-bottom: 8px; }
-        .promo-sub { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 20px; }
-        .promo-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white; padding: 12px 28px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.95rem; transition: all 0.2s; }
-        .promo-cta:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .promo-image { position: relative; z-index: 1; }
-        .promo-image img { width: 280px; border-radius: var(--radius); object-fit: cover; height: 180px; }
+        .theme-toggle:hover { border-color: var(--primary); transform: scale(1.1) rotate(15deg); }
 
-        /* ===== EXPLORE ===== */
-        .explore-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
-        .explore-card {
-            border-radius: var(--radius); overflow: hidden;
-            position: relative; height: 130px; cursor: pointer;
-            transition: all 0.3s; box-shadow: var(--shadow);
-        }
-        .explore-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .explore-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
-        .explore-card:hover img { transform: scale(1.08); }
-        .explore-card .ex-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%);
-        }
-        .explore-card .ex-label { position: absolute; bottom: 10px; left: 12px; right: 12px; font-size: 0.82rem; font-weight: 700; color: white; }
-
-        /* ===== WHY US ===== */
-        .why-bg { background: var(--bg-gray); padding: 4rem 2rem; }
-        .why-inner { max-width: 1280px; margin: 0 auto; }
-        .why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 2rem; }
-        .why-card {
-            background: white; border-radius: var(--radius); padding: 2rem 1.5rem;
-            text-align: center; border: 1px solid var(--border);
-            transition: all 0.3s; box-shadow: var(--shadow);
-        }
-        .why-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
-        .why-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-        .why-title { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-        .why-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
-
-        /* ===== FOOTER ===== */
-        .footer { background: #1C1C1C; color: white; padding: 3rem 2rem 1.5rem; }
-        .footer-inner { max-width: 1280px; margin: 0 auto; }
-        .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
-        .footer-brand .f-logo { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 900; color: var(--primary); margin-bottom: 12px; }
-        .footer-brand .f-logo span { color: var(--orange); }
-        .footer-brand p { color: rgba(255,255,255,0.5); font-size: 0.85rem; line-height: 1.7; max-width: 280px; }
-        .footer-brand .app-badges { display: flex; gap: 10px; margin-top: 1.5rem; }
-        .app-badge { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: var(--radius-sm); font-size: 0.8rem; color: white; cursor: pointer; transition: all 0.2s; }
-        .app-badge:hover { background: rgba(255,255,255,0.15); }
-        .footer-col h4 { font-family: 'Outfit', sans-serif; font-weight: 700; color: rgba(255,255,255,0.9); margin-bottom: 1rem; font-size: 0.95rem; }
-        .footer-col ul { list-style: none; }
-        .footer-col ul li { margin-bottom: 8px; }
-        .footer-col ul li a { color: rgba(255,255,255,0.5); font-size: 0.85rem; transition: color 0.2s; }
-        .footer-col ul li a:hover { color: var(--primary); }
-        .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .footer-bottom p { color: rgba(255,255,255,0.3); font-size: 0.8rem; }
-        .social-links { display: flex; gap: 12px; }
-        .social-link { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; color: white; }
-        .social-link:hover { background: var(--primary); }
-
-        /* ===== DIVIDER ===== */
-        .divider { height: 8px; background: var(--bg-gray); }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 1024px) {
-            .collections-grid { grid-template-columns: repeat(2, 1fr); }
-            .restaurants-grid { grid-template-columns: repeat(2, 1fr); }
-            .explore-grid { grid-template-columns: repeat(3, 1fr); }
-            .why-grid { grid-template-columns: repeat(2, 1fr); }
-            .footer-top { grid-template-columns: 1fr 1fr; }
-        }
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .hero-search { flex-direction: column; }
-            .hero-search-loc { border-right: none; border-bottom: 1px solid var(--border); }
-            .restaurants-grid, .collections-grid { grid-template-columns: 1fr; }
-            .explore-grid { grid-template-columns: repeat(2, 1fr); }
-            .why-grid { grid-template-columns: 1fr; }
-            .nav-search { display: none; }
-            .nav-location { display: none; }
+            .features-grid { grid-template-columns: 1fr; }
+            .hero-stats { gap: 24px; }
+            .stat-sep { display:none; }
+            .nav-links { gap: 6px; }
+            .btn-ghost { padding: 7px 12px; font-size: 0.8rem; }
         }
-
-        /* ===== ANIMATIONS ===== */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-up { animation: fadeUp 0.6s ease backwards; }
-        .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
-
-        .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-        .chip { padding: 6px 16px; border: 1px solid var(--border); border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-        .chip:hover, .chip.active { border-color: var(--primary); color: var(--primary); background: rgba(226,55,68,0.05); }
     </style>
 </head>
 <body>
+<!-- Inline theme init — runs before render to avoid flash -->
+<script>
+(function(){
+    var t = localStorage.getItem('fe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 
-<!-- ===== NAVBAR ===== -->
+<!-- Animated BG -->
+<div class="bg-layer">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+</div>
+
+<!-- NAV -->
 <nav class="nav">
     <div class="nav-inner">
         <div class="nav-logo">Food<span>Express</span></div>
-        <div class="nav-location">
-            <span>📍</span>
-            <span>Chennai, Tamil Nadu</span>
-            <span>▾</span>
-        </div>
-        <div class="nav-search">
-            <span>🔍</span>
-            <input type="text" placeholder="Search for restaurants, cuisines or dishes..." id="navSearch" onkeydown="if(event.key==='Enter'){searchFromNav()}">
-        </div>
-        <div class="nav-actions">
-            <a href="${pageContext.request.contextPath}/index.jsp" class="btn-login">Log in</a>
-            <a href="${pageContext.request.contextPath}/register" class="btn-signup">Sign up</a>
+        <div class="nav-spacer"></div>
+        <div class="nav-links">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">&#9728;&#65039;</button>
+            <a href="${pageContext.request.contextPath}/login" class="btn-ghost">&#128274; Sign In</a>
+            <a href="${pageContext.request.contextPath}/register" class="btn-primary">&#9889; Get Started</a>
         </div>
     </div>
 </nav>
 
-<!-- ===== TABS ===== -->
-<div class="tabs-bar">
-    <div class="tabs-inner">
-        <div class="tab-item active"><span class="tab-icon">🛵</span> Delivery</div>
-        <div class="tab-item"><span class="tab-icon">🍽️</span> Dining Out</div>
-        <div class="tab-item"><span class="tab-icon">✨</span> Collections</div>
-    </div>
-</div>
-
-<!-- ===== HERO ===== -->
+<!-- HERO -->
 <section class="hero">
-    <div class="hero-content">
-        <div class="hero-badge fade-up">🍛 South India's Favourite Food App</div>
-        <h1 class="fade-up delay-1">Discover the best <span class="highlight">food & drinks</span> in Chennai</h1>
-        <p class="fade-up delay-2">Order from 20+ restaurants. Fresh food, fast delivery.</p>
-        <div class="hero-search fade-up delay-3">
-            <div class="hero-search-loc">
-                <span>📍</span>
-                <span>Chennai</span>
-                <span>▾</span>
-            </div>
-            <input type="text" placeholder="Search for restaurant, cuisine or dish..." id="heroSearch">
-            <button class="hero-search-btn" onclick="searchHero()">Search</button>
+    <div class="hero-inner">
+        <div class="hero-tag">
+            <div class="tag-dot"></div>
+            &#127869; 100+ Restaurants · 25 Min Delivery
         </div>
-        <div class="hero-stats fade-up delay-3">
-            <div class="hero-stat"><div class="num">20+</div><div class="label">Restaurants</div></div>
-            <div class="hero-stat"><div class="num">100+</div><div class="label">Menu Items</div></div>
-            <div class="hero-stat"><div class="num">30 min</div><div class="label">Avg Delivery</div></div>
-            <div class="hero-stat"><div class="num">4.5★</div><div class="label">Avg Rating</div></div>
+
+        <h1 class="hero-title">
+            <span class="line1">Hunger ends here.</span>
+            <span class="line2">Order in seconds.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            Discover restaurants around you, browse menus, and get your favourite food
+            delivered hot &amp; fresh — every single time.
+        </p>
+
+        <div class="hero-cta">
+            <a href="${pageContext.request.contextPath}/register" class="btn-hero btn-hero-primary">
+                &#9889; Start Ordering — It's Free
+            </a>
+            <a href="${pageContext.request.contextPath}/login" class="btn-hero btn-hero-secondary">
+                &#128274; Sign In
+            </a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-num" id="countRest">0</div>
+                <div class="stat-label">Restaurants</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+                <div class="stat-num">25</div>
+                <div class="stat-label">Min Avg Delivery</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+                <div class="stat-num">4.8<span style="font-size:1.2rem;">&#9733;</span></div>
+                <div class="stat-label">Avg Rating</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+                <div class="stat-num">FREE</div>
+                <div class="stat-label">Delivery above ₹199</div>
+            </div>
         </div>
     </div>
 </section>
 
-<div class="divider"></div>
-
-<!-- ===== FOOD CATEGORIES ===== -->
-<div class="section">
-    <div class="section-title">Inspiration for your first order</div>
-    <div class="section-sub">What are you craving today?</div>
-    <div class="categories-scroll">
-        <div class="cat-item" onclick="filterCategory('Biryani')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&auto=format" alt="Biryani" loading="lazy"></div>
-            <div class="cat-label">Biryani</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Dosa')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1630383249896-424e482df921?w=200&auto=format" alt="Dosa" loading="lazy"></div>
-            <div class="cat-label">Dosa</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Idli')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=200&auto=format" alt="Idli" loading="lazy"></div>
-            <div class="cat-label">Idli</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Meals')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=200&auto=format" alt="Meals" loading="lazy"></div>
-            <div class="cat-label">Meals</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Parotta')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=200&auto=format" alt="Parotta" loading="lazy"></div>
-            <div class="cat-label">Parotta</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Chicken')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=200&auto=format" alt="Chicken" loading="lazy"></div>
-            <div class="cat-label">Chicken</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Seafood')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=200&auto=format" alt="Seafood" loading="lazy"></div>
-            <div class="cat-label">Seafood</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Chettinad')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=200&auto=format" alt="Chettinad" loading="lazy"></div>
-            <div class="cat-label">Chettinad</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Coffee')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=200&auto=format" alt="Coffee" loading="lazy"></div>
-            <div class="cat-label">Coffee</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Street Food')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=200&auto=format" alt="Street Food" loading="lazy"></div>
-            <div class="cat-label">Street Food</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Sweets')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=200&auto=format" alt="Sweets" loading="lazy"></div>
-            <div class="cat-label">Sweets</div>
-        </div>
-        <div class="cat-item" onclick="filterCategory('Kerala')">
-            <div class="cat-circle"><img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=200&auto=format" alt="Kerala" loading="lazy"></div>
-            <div class="cat-label">Kerala</div>
+<!-- FOOD SCROLL STRIP -->
+<section class="food-strip">
+    <div class="food-strip-title">Explore <span>delicious</span> cuisines</div>
+    <div style="overflow:hidden; mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent); -webkit-mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent);">
+        <div class="scroll-track" id="scrollTrack">
+            <!-- Cards duplicated for infinite scroll -->
         </div>
     </div>
-</div>
+</section>
 
-<div class="divider"></div>
-
-<!-- ===== TOP BRANDS ===== -->
-<div class="section">
-    <div class="section-title">Top brands for you</div>
-    <div class="section-sub">Your favourite restaurants, all in one place</div>
-    <div class="brands-scroll">
-        <div class="brand-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1630383249896-424e482df921?w=240&auto=format" alt="Murugan Idli Shop" loading="lazy">
-            <div class="brand-name">Murugan Idli</div>
-            <div class="brand-sub">25–35 min</div>
+<!-- FEATURES -->
+<section class="features">
+    <div class="features-title">Why choose FoodExpress?</div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">&#9889;</div>
+            <div class="feature-title">Lightning Fast Delivery</div>
+            <div class="feature-desc">Average delivery time of just 25 minutes. Real-time order tracking so you always know where your food is.</div>
         </div>
-        <div class="brand-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=240&auto=format" alt="Saravana Bhavan" loading="lazy">
-            <div class="brand-name">Saravana Bhavan</div>
-            <div class="brand-sub">20–30 min</div>
+        <div class="feature-card">
+            <div class="feature-icon">&#127869;</div>
+            <div class="feature-title">100+ Restaurants</div>
+            <div class="feature-desc">Explore a wide variety of cuisines — from South Indian classics to Italian, Chinese, Continental &amp; more.</div>
         </div>
-        <div class="brand-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=240&auto=format" alt="Thalappakatti" loading="lazy">
-            <div class="brand-name">Thalappakatti</div>
-            <div class="brand-sub">30–40 min</div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128181;</div>
+            <div class="feature-title">Best Prices</div>
+            <div class="feature-desc">Free delivery above ₹199. No hidden charges. What you see is what you pay — always.</div>
         </div>
-        <div class="brand-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=240&auto=format" alt="Anjappar" loading="lazy">
-            <div class="brand-name">Anjappar</div>
-            <div class="brand-sub">35–45 min</div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128274;</div>
+            <div class="feature-title">Secure &amp; Safe</div>
+            <div class="feature-desc">Multiple secure payment options — Cash, UPI, Cards, Wallets. Your data is always protected.</div>
         </div>
-        <div class="brand-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=240&auto=format" alt="Nair Mess" loading="lazy">
-            <div class="brand-name">Nair Mess</div>
-            <div class="brand-sub">25–35 min</div>
+        <div class="feature-card">
+            <div class="feature-icon">&#11088;</div>
+            <div class="feature-title">Rated 4.8 Stars</div>
+            <div class="feature-desc">Trusted by thousands of happy customers. Only the best-rated restaurants make it to FoodExpress.</div>
         </div>
-        <div class="brand-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=240&auto=format" alt="Buhari Hotel" loading="lazy">
-            <div class="brand-name">Buhari Hotel</div>
-            <div class="brand-sub">30–40 min</div>
-        </div>
-        <div class="brand-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1642821373181-696a54913e93?w=240&auto=format" alt="Junior Kuppanna" loading="lazy">
-            <div class="brand-name">Junior Kuppanna</div>
-            <div class="brand-sub">35–45 min</div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128247;</div>
+            <div class="feature-title">Easy Ordering</div>
+            <div class="feature-desc">Browse, add to cart, checkout — in under 60 seconds. Reorder your favourites with one click.</div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="divider"></div>
-
-<!-- ===== COLLECTIONS ===== -->
-<div class="section">
-    <div class="section-title">Collections</div>
-    <div class="section-sub">Explore curated lists of top restaurants, cafes, and bars based on trends</div>
-    <div class="collections-grid">
-        <div class="collection-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1630383249896-424e482df921?w=600&auto=format" alt="South Indian Breakfast" loading="lazy">
-            <div class="overlay"></div>
-            <div class="col-info">
-                <div class="col-name">South Indian Breakfast</div>
-                <div class="col-count">12 Places</div>
-            </div>
-        </div>
-        <div class="collection-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format" alt="Biryani Trail" loading="lazy">
-            <div class="overlay"></div>
-            <div class="col-info">
-                <div class="col-name">Biryani Trail — Best in Chennai</div>
-                <div class="col-count">8 Places</div>
-            </div>
-        </div>
-        <div class="collection-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&auto=format" alt="Chettinad Specials" loading="lazy">
-            <div class="overlay"></div>
-            <div class="col-info">
-                <div class="col-name">Chettinad Specials</div>
-                <div class="col-count">6 Places</div>
-            </div>
-        </div>
-        <div class="collection-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&auto=format" alt="Coastal Seafood" loading="lazy">
-            <div class="overlay"></div>
-            <div class="col-info">
-                <div class="col-name">Coastal Seafood Gems</div>
-                <div class="col-count">5 Places</div>
-            </div>
+<!-- FINAL CTA -->
+<section class="final-cta">
+    <div class="final-cta-box">
+        <h2>Ready to order? &#129297;</h2>
+        <p>Join thousands of food lovers who trust FoodExpress for their daily meals.</p>
+        <div class="final-cta-btns">
+            <a href="${pageContext.request.contextPath}/register" class="btn-hero btn-hero-primary">
+                &#9889; Create Free Account
+            </a>
+            <a href="${pageContext.request.contextPath}/login" class="btn-hero btn-hero-secondary">
+                &#128274; I have an account
+            </a>
         </div>
     </div>
-</div>
+</section>
 
-<!-- ===== PROMO BANNER ===== -->
-<div style="padding: 0 2rem; max-width:1280px; margin: 0 auto;">
-    <div class="promo-banner">
-        <div class="promo-content">
-            <div class="promo-badge-label">🎉 LIMITED TIME</div>
-            <div class="promo-title">Get up to<br>50% OFF</div>
-            <div class="promo-sub">On your first 3 orders. Use code FOODEXPRESS50</div>
-            <a href="${pageContext.request.contextPath}/register" class="promo-cta">Create Free Account →</a>
-        </div>
-        <div class="promo-image">
-            <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&auto=format" alt="Food offer" loading="lazy">
-        </div>
-    </div>
-</div>
-
-<div style="height: 2rem;"></div>
-<div class="divider"></div>
-
-<!-- ===== FEATURED RESTAURANTS ===== -->
-<div class="section">
-    <div class="section-title">Food Delivery Restaurants in Chennai</div>
-    <div class="section-sub">Order food online and get it delivered to your doorstep</div>
-    <div class="chips">
-        <span class="chip active">All</span>
-        <span class="chip">Pure Veg</span>
-        <span class="chip">Non-Veg</span>
-        <span class="chip">Biryani</span>
-        <span class="chip">Chettinad</span>
-        <span class="chip">South Indian</span>
-        <span class="chip">Seafood</span>
-        <span class="chip">Street Food</span>
-    </div>
-    <div class="restaurants-grid">
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=500&auto=format" alt="Murugan Idli Shop" loading="lazy">
-                <div class="promo-badge">⚡ Free Delivery above ₹199</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Murugan Idli Shop</div>
-                    <div class="rest-card-rating">★ 4.8</div>
-                </div>
-                <div class="rest-card-cuisine">South Indian, Tiffin</div>
-                <div class="rest-card-meta">
-                    <span>🕐 20 min</span><span class="dot"></span>
-                    <span>📍 T. Nagar</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="https://images.unsplash.com/photo-1642821373181-696a54913e93?w=500&auto=format" alt="Dindigul Thalappakatti" loading="lazy">
-                <div class="discount-tag">30% OFF</div>
-                <div class="promo-badge">🔥 Bestseller</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Dindigul Thalappakatti</div>
-                    <div class="rest-card-rating">★ 4.7</div>
-                </div>
-                <div class="rest-card-cuisine">Biryani, South Indian</div>
-                <div class="rest-card-meta">
-                    <span>🕐 35 min</span><span class="dot"></span>
-                    <span>📍 Anna Nagar</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="https://images.unsplash.com/photo-1630383249896-424e482df921?w=500&auto=format" alt="Ratna Cafe" loading="lazy">
-                <div class="promo-badge">⚡ Free Delivery</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Ratna Cafe</div>
-                    <div class="rest-card-rating">★ 4.6</div>
-                </div>
-                <div class="rest-card-cuisine">South Indian, Breakfast</div>
-                <div class="rest-card-meta">
-                    <span>🕐 20 min</span><span class="dot"></span>
-                    <span>📍 Triplicane</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="/FoodOrderingSystem/images/restaurants/restaurant_chettinad.png" alt="Anjappar Chettinad" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format'">
-                <div class="discount-tag">20% OFF</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Anjappar Chettinad</div>
-                    <div class="rest-card-rating">★ 4.5</div>
-                </div>
-                <div class="rest-card-cuisine">Chettinad, South Indian</div>
-                <div class="rest-card-meta">
-                    <span>🕐 40 min</span><span class="dot"></span>
-                    <span>📍 Vadapalani</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="/FoodOrderingSystem/images/restaurants/restaurant_kerala.png" alt="Nair Mess" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format'">
-                <div class="promo-badge">🐟 Kerala Specials</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Nair Mess</div>
-                    <div class="rest-card-rating">★ 4.5</div>
-                </div>
-                <div class="rest-card-cuisine">Kerala, Seafood, Meals</div>
-                <div class="rest-card-meta">
-                    <span>🕐 30 min</span><span class="dot"></span>
-                    <span>📍 Royapettah</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=500&auto=format" alt="Buhari Hotel" loading="lazy">
-                <div class="discount-tag">Since 1951</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Buhari Hotel</div>
-                    <div class="rest-card-rating">★ 4.3</div>
-                </div>
-                <div class="rest-card-cuisine">South Indian, Non-Veg</div>
-                <div class="rest-card-meta">
-                    <span>🕐 35 min</span><span class="dot"></span>
-                    <span>📍 Mount Road</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format" alt="Saravana Bhavan" loading="lazy">
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Saravana Bhavan</div>
-                    <div class="rest-card-rating">★ 4.4</div>
-                </div>
-                <div class="rest-card-cuisine">South Indian, Pure Veg</div>
-                <div class="rest-card-meta">
-                    <span>🕐 25 min</span><span class="dot"></span>
-                    <span>📍 Adyar</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format" alt="Mathsya Seafood" loading="lazy">
-                <div class="promo-badge">🦞 Fresh Catch Today</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Mathsya - Sea Food Corner</div>
-                    <div class="rest-card-rating">★ 4.6</div>
-                </div>
-                <div class="rest-card-cuisine">Seafood, Coastal</div>
-                <div class="rest-card-meta">
-                    <span>🕐 40 min</span><span class="dot"></span>
-                    <span>📍 Nungambakkam</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="rest-card" onclick="goLogin()">
-            <div class="rest-card-img">
-                <img src="/FoodOrderingSystem/images/restaurants/restaurant_street_food.png" alt="Chennai Street Bites" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=500&auto=format'">
-                <div class="discount-tag">₹49 Delivery</div>
-            </div>
-            <div class="rest-card-body">
-                <div class="rest-card-header">
-                    <div class="rest-card-name">Chennai Street Bites</div>
-                    <div class="rest-card-rating">★ 4.2</div>
-                </div>
-                <div class="rest-card-cuisine">Street Food, Chaat</div>
-                <div class="rest-card-meta">
-                    <span>🕐 15 min</span><span class="dot"></span>
-                    <span>📍 Egmore</span>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div style="text-align:center; margin-top: 2rem;">
-        <a href="${pageContext.request.contextPath}/register" style="display:inline-flex;align-items:center;gap:8px;padding:14px 36px;border:2px solid var(--primary);color:var(--primary);border-radius:var(--radius-sm);font-weight:700;font-size:0.95rem;transition:all 0.2s;" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='transparent';this.style.color='var(--primary)'">
-            See all 20 restaurants →
-        </a>
-    </div>
-</div>
-
-<div class="divider"></div>
-
-<!-- ===== EXPLORE BY CUISINE ===== -->
-<div class="section">
-    <div class="section-title">Explore options near you</div>
-    <div class="section-sub">Popular cuisines in Chennai</div>
-    <div class="explore-grid">
-        <div class="explore-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1630383249896-424e482df921?w=400&auto=format" alt="South Indian" loading="lazy">
-            <div class="ex-overlay"></div>
-            <div class="ex-label">South Indian</div>
-        </div>
-        <div class="explore-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1642821373181-696a54913e93?w=400&auto=format" alt="Biryani" loading="lazy">
-            <div class="ex-overlay"></div>
-            <div class="ex-label">Biryani</div>
-        </div>
-        <div class="explore-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400&auto=format" alt="Chettinad" loading="lazy">
-            <div class="ex-overlay"></div>
-            <div class="ex-label">Chettinad</div>
-        </div>
-        <div class="explore-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&auto=format" alt="Kerala" loading="lazy">
-            <div class="ex-overlay"></div>
-            <div class="ex-label">Kerala Specials</div>
-        </div>
-        <div class="explore-card" onclick="goLogin()">
-            <img src="https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format" alt="Street Food" loading="lazy">
-            <div class="ex-overlay"></div>
-            <div class="ex-label">Street Food</div>
-        </div>
-    </div>
-</div>
-
-<div class="divider"></div>
-
-<!-- ===== WHY US ===== -->
-<div class="why-bg">
-    <div class="why-inner">
-        <div style="text-align:center;">
-            <div class="section-title">Why FoodExpress?</div>
-            <div class="section-sub">We make ordering food simple, fast, and delicious</div>
-        </div>
-        <div class="why-grid">
-            <div class="why-card">
-                <div class="why-icon">⚡</div>
-                <div class="why-title">Lightning Fast Delivery</div>
-                <div class="why-desc">Average delivery in 30 minutes or less. Fresh food, hot and on time, every time.</div>
-            </div>
-            <div class="why-card">
-                <div class="why-icon">🍛</div>
-                <div class="why-title">Authentic South Indian</div>
-                <div class="why-desc">20+ curated restaurants serving genuine Tamil Nadu, Kerala, and Chettinad cuisine.</div>
-            </div>
-            <div class="why-card">
-                <div class="why-icon">💰</div>
-                <div class="why-title">Best Prices</div>
-                <div class="why-desc">Enjoy great food at honest prices. No hidden charges, no markups.</div>
-            </div>
-            <div class="why-card">
-                <div class="why-icon">🔒</div>
-                <div class="why-title">Safe & Secure</div>
-                <div class="why-desc">Encrypted payments, real-time order tracking, and dedicated customer support.</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ===== FOOTER ===== -->
+<!-- FOOTER -->
 <footer class="footer">
-    <div class="footer-inner">
-        <div class="footer-top">
-            <div class="footer-brand">
-                <div class="f-logo">Food<span>Express</span></div>
-                <p>Order delicious South Indian food online. Fresh meals from the best restaurants in Chennai, delivered fast to your door.</p>
-                <div class="app-badges">
-                    <div class="app-badge">📱 App Store</div>
-                    <div class="app-badge">▶ Google Play</div>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>About FoodExpress</h4>
-                <ul>
-                    <li><a href="#">Who We Are</a></li>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">Work With Us</a></li>
-                    <li><a href="#">Investor Relations</a></li>
-                    <li><a href="#">Report Fraud</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>For Foodies</h4>
-                <ul>
-                    <li><a href="${pageContext.request.contextPath}/register">Create Account</a></li>
-                    <li><a href="${pageContext.request.contextPath}/index.jsp">Sign In</a></li>
-                    <li><a href="#">iOS App</a></li>
-                    <li><a href="#">Android App</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>For Restaurants</h4>
-                <ul>
-                    <li><a href="#">Partner With Us</a></li>
-                    <li><a href="#">Apps For You</a></li>
-                    <li><a href="#">Business App</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Learn More</h4>
-                <ul>
-                    <li><a href="#">Privacy</a></li>
-                    <li><a href="#">Security</a></li>
-                    <li><a href="#">Terms</a></li>
-                    <li><a href="#">Sitemap</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2026 FoodExpress India Pvt. Ltd. All rights reserved.</p>
-            <div class="social-links">
-                <div class="social-link">𝕏</div>
-                <div class="social-link">f</div>
-                <div class="social-link">in</div>
-                <div class="social-link">📷</div>
-            </div>
-        </div>
-    </div>
+    <div class="footer-logo">FoodExpress</div>
+    <div>&#169; 2026 FoodExpress. Delivered hot. Every time. &#127861;</div>
 </footer>
 
 <script>
-    function goLogin() {
-        window.location.href = '${pageContext.request.contextPath}/index.jsp';
+    /* ── Global Theme Toggle (shared with all pages via localStorage) ── */
+    function toggleTheme() {
+        var html = document.documentElement;
+        var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('fe-theme', next);
+        var btn = document.getElementById('themeToggle');
+        if (btn) btn.innerHTML = next === 'dark' ? '&#9728;&#65039;' : '&#127769;';
     }
-    function searchHero() {
-        const q = document.getElementById('heroSearch').value.trim();
-        if (q) window.location.href = '${pageContext.request.contextPath}/index.jsp';
-        else goLogin();
-    }
-    function searchFromNav() {
-        const q = document.getElementById('navSearch').value.trim();
-        if (q) window.location.href = '${pageContext.request.contextPath}/index.jsp';
-        else goLogin();
-    }
-    function filterCategory(name) {
-        window.location.href = '${pageContext.request.contextPath}/index.jsp';
-    }
+    // Set correct icon on load
+    (function() {
+        var t = localStorage.getItem('fe-theme') || 'dark';
+        var btn = document.getElementById('themeToggle');
+        if (btn) btn.innerHTML = t === 'dark' ? '&#9728;&#65039;' : '&#127769;';
+    })();
 
-    // Chip filter toggle
-    document.querySelectorAll('.chip').forEach(chip => {
-        chip.addEventListener('click', function() {
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
+    // Animate restaurant counter
+    (function() {
+        var el = document.getElementById('countRest');
+        var target = 100, current = 0;
+        var timer = setInterval(function() {
+            current += 4;
+            if (current >= target) { current = target; clearInterval(timer); }
+            el.textContent = current + '+';
+        }, 20);
+    })();
 
-    // Tab toggle
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-        });
+    // Food scroll strip
+    var foods = [
+        { name:'Biryani', img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&auto=format' },
+        { name:'Pizza', img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&auto=format' },
+        { name:'Burger', img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&auto=format' },
+        { name:'Dosa', img:'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400&auto=format' },
+        { name:'Noodles', img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&auto=format' },
+        { name:'Sushi', img:'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&auto=format' },
+        { name:'Tacos', img:'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400&auto=format' },
+        { name:'Ice Cream', img:'https://images.unsplash.com/photo-1560008581-09826d1de69e?w=400&auto=format' },
+        { name:'Pasta', img:'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=400&auto=format' },
+        { name:'Rolls', img:'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&auto=format' },
+    ];
+    var track = document.getElementById('scrollTrack');
+    // Duplicate for infinite scroll
+    var all = foods.concat(foods);
+    all.forEach(function(f) {
+        var card = document.createElement('div');
+        card.className = 'food-card-mini';
+        card.innerHTML = '<img src="' + f.img + '" alt="' + f.name + '" loading="lazy" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&auto=format\'">' +
+            '<div class="food-card-mini-label">' + f.name + '</div>';
+        track.appendChild(card);
     });
 </script>
 </body>

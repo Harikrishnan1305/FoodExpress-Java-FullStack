@@ -181,6 +181,9 @@ public class MenuDAOImpl implements MenuDAO {
         menu.setImageUrl(rs.getString("image_url"));
         menu.setAvailable(rs.getBoolean("is_available"));
         menu.setRestaurantName(rs.getString("restaurant_name"));
+        // Map new fields (handle missing column gracefully)
+        try { menu.setVeg(rs.getBoolean("is_veg")); } catch (SQLException ignored) {}
+        try { menu.setCategory(rs.getString("category")); } catch (SQLException ignored) {}
         return menu;
     }
 

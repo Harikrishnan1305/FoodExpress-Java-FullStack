@@ -44,8 +44,14 @@ public class CartServlet extends HttpServlet {
             return;
         }
 
-        // Get or create cart from session
-        Cart cart = (Cart) session.getAttribute("cart");
+        // Get or create cart from session (handle stale session after redeploy)
+        Cart cart;
+        try {
+            cart = (Cart) session.getAttribute("cart");
+        } catch (ClassCastException e) {
+            session.removeAttribute("cart");
+            cart = null;
+        }
         if (cart == null) {
             cart = new Cart();
             session.setAttribute("cart", cart);
@@ -72,8 +78,14 @@ public class CartServlet extends HttpServlet {
             return;
         }
 
-        // Get or create cart from session
-        Cart cart = (Cart) session.getAttribute("cart");
+        // Get or create cart from session (handle stale session after redeploy)
+        Cart cart;
+        try {
+            cart = (Cart) session.getAttribute("cart");
+        } catch (ClassCastException e) {
+            session.removeAttribute("cart");
+            cart = null;
+        }
         if (cart == null) {
             cart = new Cart();
         }

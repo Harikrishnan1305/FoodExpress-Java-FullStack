@@ -17,6 +17,8 @@ public class Menu implements Serializable {
     private double rating;
     private String imageUrl;
     private boolean isAvailable;
+    private boolean isVeg;       // true = veg, false = non-veg
+    private String category;     // e.g. Biryani, Tiffin, Mains
 
     // Transient field — not stored in DB, loaded for display
     private String restaurantName;
@@ -74,6 +76,12 @@ public class Menu implements Serializable {
 
     public String getRestaurantName() { return restaurantName; }
     public void setRestaurantName(String restaurantName) { this.restaurantName = restaurantName; }
+
+    public boolean isVeg() { return isVeg; }
+    public void setVeg(boolean veg) { isVeg = veg; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
     @Override
     public String toString() {
