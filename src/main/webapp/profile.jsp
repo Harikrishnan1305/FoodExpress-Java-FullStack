@@ -159,10 +159,25 @@
 
         <!-- RIGHT: Info -->
         <div>
+            <!-- Alerts -->
+            <c:if test="${not empty sessionScope.successMsg}">
+                <div style="background:rgba(29,185,84,0.1);color:var(--green);padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:1rem;border:1px solid rgba(29,185,84,0.2);font-weight:600;font-size:0.85rem;">
+                    &#9989; <c:out value="${sessionScope.successMsg}"/>
+                </div>
+                <c:remove var="successMsg" scope="session" />
+            </c:if>
+            <c:if test="${not empty sessionScope.errorMsg}">
+                <div style="background:rgba(226,55,68,0.1);color:var(--primary);padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:1rem;border:1px solid rgba(226,55,68,0.2);font-weight:600;font-size:0.85rem;">
+                    &#9888;&#65039; <c:out value="${sessionScope.errorMsg}"/>
+                </div>
+                <c:remove var="errorMsg" scope="session" />
+            </c:if>
+
             <!-- Personal Info -->
             <div class="info-card">
                 <div class="info-card-header">
                     <div class="info-card-title">&#128100; Personal Information</div>
+                    <button class="btn-outline" style="padding:4px 10px;font-size:0.75rem;" onclick="openEditModal()">&#9999;&#65039; Edit</button>
                 </div>
                 <div class="info-card-body">
                     <div class="info-row">
@@ -256,6 +271,35 @@
     </div>
 </div>
 
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" id="editProfileModal">
+    <div class="modal" style="width:420px;">
+        <div class="modal-title">&#9999;&#65039; Edit Profile</div>
+        <form action="${pageContext.request.contextPath}/update-profile" method="POST">
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Full Name *</label>
+                <input type="text" name="name" class="modal-url-input" style="width:100%;" value="<c:out value='${sessionScope.user.name}'/>" required>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Email</label>
+                <input type="email" name="email" class="modal-url-input" style="width:100%;" value="<c:out value='${sessionScope.user.email}'/>">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Phone Number</label>
+                <input type="tel" name="phone" class="modal-url-input" style="width:100%;" value="<c:out value='${sessionScope.user.phone}'/>">
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Address</label>
+                <textarea name="address" class="modal-url-input" style="width:100%;resize:vertical;min-height:60px;font-family:inherit;"><c:out value='${sessionScope.user.address}'/></textarea>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn-modal-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     /* Theme */
     function toggleTheme() {
@@ -332,6 +376,13 @@
     }
     document.getElementById('avatarModal').addEventListener('click', function(e) {
         if (e.target === this) closeAvatarModal();
+    });
+
+    /* Edit Profile Modal */
+    function openEditModal() { document.getElementById('editProfileModal').classList.add('open'); }
+    function closeEditModal() { document.getElementById('editProfileModal').classList.remove('open'); }
+    document.getElementById('editProfileModal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditModal();
     });
 </script>
 </body>
