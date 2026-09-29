@@ -23,6 +23,14 @@ public class LogoutServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session != null) {
             String username = (String) session.getAttribute("userName");
+            
+            // Explicitly clear the cart from memory
+            com.foodapp.model.Cart cart = (com.foodapp.model.Cart) session.getAttribute("cart");
+            if (cart != null) {
+                cart.clear();
+                session.removeAttribute("cart");
+            }
+            
             session.invalidate();
             log.info("User logged out: username='{}'", username);
         }
